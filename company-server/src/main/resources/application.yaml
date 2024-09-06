@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: company-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      password: systempass
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        use_sql_comments: true
+        highlight_sql: true
+
+server:
+  port: 19094
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+
+springdoc:
+  swagger-ui:
+    path: /service/swagger-ui
+  api-docs:
+    path: /service/v3/api-docs
