@@ -1,10 +1,10 @@
-package org.example.common;
+package com.sparta3tm.eurekaserver;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class CommonApplicationTests {
+class EurekaServerApplicationTests {
 
     @Test
     void contextLoads() {
