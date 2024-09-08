@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorType {
 
-    DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.E500, "An unexpected error has occurred.", LogLevel.ERROR);
-
+    DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.E500, "An unexpected error has occurred.", LogLevel.ERROR),
+    NOT_FOUND_ERROR(HttpStatus.NOT_FOUND, ErrorCode.E400, "Not found data.", LogLevel.ERROR),;
 
     private final HttpStatus status;
 
