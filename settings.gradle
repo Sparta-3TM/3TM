@@ -1,3 +1,5 @@
 rootProject.name = '3TM'
-include 'common'
-include 'eureka-server'
+
+include ':common'
+include ':eureka-server'
+include ':hub-server'
