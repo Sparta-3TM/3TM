@@ -9,7 +9,7 @@ repositories {
 }
 
 subprojects {
-    apply plugin: 'java-library'
+    apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
@@ -25,8 +25,12 @@ subprojects {
     }
 
     dependencies {
-        testImplementation platform('org.junit:junit-bom:5.10.0')
-        testImplementation 'org.junit.jupiter:junit-jupiter'
+        // prometheus
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 
     test {
@@ -48,3 +52,8 @@ project(':hub-server') {
     }
 }
 
+project(':company-server'){
+    dependencies {
+        implementation project(':common')
+    }
+}
