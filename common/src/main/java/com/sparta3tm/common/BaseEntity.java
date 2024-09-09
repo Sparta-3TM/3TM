@@ -34,6 +34,7 @@ public class BaseEntity {
     @Column(length = 100)
     private String deletedBy;
 
+    @Column(name = "is_delete")
     private boolean isDelete = false;
 
     public void softDelete(String deletedBy){
