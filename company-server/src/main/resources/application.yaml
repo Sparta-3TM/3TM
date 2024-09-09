@@ -28,6 +28,25 @@ eureka:
     service-url:
       defaultZone: http://localhost:19090/eureka/
 
+management:
+  # Prometheus 세팅
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  # Zipkin 세팅
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
+  tracing:
+    sampling:
+      probability: 1.0
+
 springdoc:
   swagger-ui:
     path: /service/swagger-ui
