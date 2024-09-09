@@ -1,0 +1,37 @@
+server:
+  port: 19099
+spring:
+  application:
+    name: hub-server
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: username
+    password: password
+    url: jdbc:postgresql://localhost:5432/postgres
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, refresh
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
