@@ -1,0 +1,90 @@
+openapi: 3.0.1
+info:
+  description: Hub Server API description
+  title: Hub Server API
+  version: 1.0.0
+servers:
+- url: http://localhost:19099
+paths:
+  /api/hubs:
+    post:
+      operationId: create-hub
+      parameters:
+      - description: AccessToken
+        example: "Bearer {AccessToken}"
+        explode: false
+        in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            examples:
+              create-hub:
+                value: "{\r\n  \"hubName\" : \"CH HUB\",\r\n  \"address\" : \"Buchon\"\
+                  ,\r\n  \"latitude\" : 36.5,\r\n  \"longitude\" : 37.5\r\n}"
+            schema:
+              $ref: '#/components/schemas/api-hubs-275928953'
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                create-hub:
+                  value: "{\r\n  \"result\" : \"SUCCESS\",\r\n  \"data\" : {\r\n \
+                    \   \"id\" : 1,\r\n    \"hubName\" : \"CH HUB\",\r\n    \"address\"\
+                    \ : \"Buchon\",\r\n    \"latitude\" : 36.5,\r\n    \"longitude\"\
+                    \ : 37.5\r\n  },\r\n  \"error\" : null\r\n}"
+              schema:
+                $ref: '#/components/schemas/api-hubs-1069940362'
+          description: "200"
+      tags:
+      - api
+      x-content-type: application/json
+      x-accepts: application/json
+components:
+  schemas:
+    api-hubs-275928953:
+      properties:
+        address:
+          description: 허브 주소
+          type: string
+        latitude:
+          description: 허브 위도
+          type: number
+        hubName:
+          description: 허브 이름
+          type: string
+        longitude:
+          description: 허브 경도
+          type: number
+      required:
+      - address
+      - hubName
+      - latitude
+      - longitude
+      type: object
+    api-hubs-1069940362:
+      example:
+        result: result
+        data: "{}"
+        error: "{}"
+      properties:
+        result:
+          description: 결과 타입
+          type: string
+        data:
+          description: 데이터 객체
+          type: object
+        error:
+          description: "오류 정보 ( 결과 타입이 Success 일 경우, null )"
+          nullable: true
+          type: object
+      required:
+      - data
+      - result
+      type: object
+
