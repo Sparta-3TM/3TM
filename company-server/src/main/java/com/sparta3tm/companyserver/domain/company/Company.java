@@ -23,13 +23,13 @@ public class Company extends BaseEntity {
     @Column(name = "hub_id", nullable = false)
     private Long hubId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "company_type")
+    @Column(name = "company_type", nullable = false)
     private CompanyType companyType;
 
-    @Column
+    @Column(nullable = false)
     private String address;
 
     public void updateCompany(Long hubId, String name, String address, CompanyType companyType){

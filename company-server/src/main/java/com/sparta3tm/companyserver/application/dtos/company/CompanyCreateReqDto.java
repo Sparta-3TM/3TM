@@ -2,19 +2,22 @@ package com.sparta3tm.companyserver.application.dtos.company;
 
 import com.sparta3tm.companyserver.domain.company.Company;
 import com.sparta3tm.companyserver.domain.company.CompanyType;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CompanyCreateReqDto {
+    @NotNull
     private Long hubId;
+    @NotNull
     private String name;
+    @NotNull
     private CompanyType companyType;
+    @NotNull
     private String address;
 
     public Company toEntity(){
