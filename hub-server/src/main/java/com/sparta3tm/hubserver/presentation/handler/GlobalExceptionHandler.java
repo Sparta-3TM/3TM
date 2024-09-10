@@ -1,4 +1,4 @@
-package com.sparta3tm.hubserver.presentation;
+package com.sparta3tm.hubserver.presentation.handler;
 
 import com.sparta3tm.common.support.error.CoreApiException;
 import com.sparta3tm.common.support.response.ApiResponse;

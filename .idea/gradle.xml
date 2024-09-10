@@ -9,6 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/company-server" />
             <option value="$PROJECT_DIR$/eureka-server" />
             <option value="$PROJECT_DIR$/hub-server" />
           </set>
