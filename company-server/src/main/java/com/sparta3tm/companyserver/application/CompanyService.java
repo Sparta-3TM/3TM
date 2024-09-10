@@ -2,24 +2,19 @@ package com.sparta3tm.companyserver.application;
 
 import com.sparta3tm.common.support.error.CoreApiException;
 import com.sparta3tm.common.support.error.ErrorType;
-import com.sparta3tm.common.support.response.ApiResponse;
-import com.sparta3tm.common.support.response.ResultType;
-import com.sparta3tm.companyserver.application.dtos.CompanyCreateReqDto;
-import com.sparta3tm.companyserver.application.dtos.CompanyResDto;
-import com.sparta3tm.companyserver.application.dtos.CompanyUpdateReqDto;
+import com.sparta3tm.companyserver.application.dtos.company.CompanyCreateReqDto;
+import com.sparta3tm.companyserver.application.dtos.company.CompanyResDto;
+import com.sparta3tm.companyserver.application.dtos.company.CompanyUpdateReqDto;
 import com.sparta3tm.companyserver.domain.company.Company;
 import com.sparta3tm.companyserver.domain.company.CompanyRepository;
 import com.sparta3tm.companyserver.domain.company.CompanyType;
 import com.sparta3tm.companyserver.infrastructure.HubClient;
 import feign.FeignException;
-import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
