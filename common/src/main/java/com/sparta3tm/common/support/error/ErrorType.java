@@ -1,6 +1,5 @@
 package com.sparta3tm.common.support.error;
 
-import com.sparta3tm.common.support.response.ApiResponse;
 import lombok.Getter;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.http.HttpStatus;
@@ -9,7 +8,8 @@ import org.springframework.http.HttpStatus;
 public enum ErrorType {
 
     DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.E500, "An unexpected error has occurred.", LogLevel.ERROR),
-    NOT_FOUND_ERROR(HttpStatus.NOT_FOUND, ErrorCode.E400, "Not found data.", LogLevel.ERROR),;
+    NOT_FOUND_ERROR(HttpStatus.NOT_FOUND, ErrorCode.E404, "Not found data.", LogLevel.ERROR),
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, ErrorCode.E400, "Bad Request.", LogLevel.ERROR);
 
     private final HttpStatus status;
 

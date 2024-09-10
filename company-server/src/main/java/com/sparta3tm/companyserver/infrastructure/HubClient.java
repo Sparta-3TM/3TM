@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface HubClient {
 
     @GetMapping("/api/hubs/{hubId}")
-    ApiResponse<?> searchHubById(@PathVariable Long hubId);
+    ApiResponse<?> searchHubById(@PathVariable(name = "hubId") Long hubId);
 }
