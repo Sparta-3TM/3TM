@@ -2,8 +2,8 @@ package com.sparta3tm.companyserver.controller;
 
 import com.sparta3tm.common.support.response.ApiResponse;
 import com.sparta3tm.companyserver.application.CompanyService;
-import com.sparta3tm.companyserver.application.dtos.CompanyCreateReqDto;
-import com.sparta3tm.companyserver.application.dtos.CompanyUpdateReqDto;
+import com.sparta3tm.companyserver.application.dtos.company.CompanyCreateReqDto;
+import com.sparta3tm.companyserver.application.dtos.company.CompanyUpdateReqDto;
 import com.sparta3tm.companyserver.domain.company.CompanyType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

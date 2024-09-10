@@ -42,14 +42,14 @@ public class HMIService {
         HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
         hubService.searchHubById(hmiId);
         hubService.searchHubById(addUpdateHMIDto.addHubId());
-        if (hmi.getParentMovementInfo() != null) throw new CoreApiException(ErrorType.BAD_REQUEST_ERROR);
+        if (hmi.getParentMovementInfo() != null) throw new CoreApiException(ErrorType.BAD_REQUEST);
         return updateConnectionAddHmi(hmi, addUpdateHMIDto);
     }
 
     @Transactional
     public ResponseHMIDto removeUpdateHmi(Long hmiId, RemoveUpdateHMIDto removeUpdateHMIDto) {
         HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
-        if (hmi.getParentMovementInfo() != null) throw new CoreApiException(ErrorType.BAD_REQUEST_ERROR);
+        if (hmi.getParentMovementInfo() != null) throw new CoreApiException(ErrorType.BAD_REQUEST);
         return updateConnectionRemoveHmi(hmi, removeUpdateHMIDto);
     }
 
@@ -134,7 +134,7 @@ public class HMIService {
             subNew.addIndex(position - 1);
             hmi.addSubMovement(subNew);
 
-        } else throw new CoreApiException(ErrorType.BAD_REQUEST_ERROR);
+        } else throw new CoreApiException(ErrorType.BAD_REQUEST);
 
         return ResponseHMIDto.of(hmiRepository.save(hmi));
     }
@@ -144,7 +144,7 @@ public class HMIService {
         Long removeHubId = removeUpdateHMIDto.removeHubId();
 
         if (list.isEmpty()) {
-            throw new CoreApiException(ErrorType.BAD_REQUEST_ERROR);
+            throw new CoreApiException(ErrorType.BAD_REQUEST);
         } else if (removeHubId.equals(hmi.getStartHub())) {
             log.info("start hub remove update");
             if (list.size() == 2) {
@@ -155,7 +155,7 @@ public class HMIService {
                 HubMovementInfo removeHmi = list.stream()
                         .filter(info -> info.getStartHub().equals(removeHubId))
                         .findFirst()
-                        .orElseThrow(() -> new CoreApiException(ErrorType.BAD_REQUEST_ERROR));
+                        .orElseThrow(() -> new CoreApiException(ErrorType.BAD_REQUEST));
 
                 hmi.updateStartHub(removeHmi.getEndHub());
                 hmi.removeSubMovement(removeHmi);
@@ -171,7 +171,7 @@ public class HMIService {
                 HubMovementInfo removeHmi = list.stream()
                         .filter(info -> info.getEndHub().equals(removeHubId))
                         .findFirst()
-                        .orElseThrow(() -> new CoreApiException(ErrorType.BAD_REQUEST_ERROR));
+                        .orElseThrow(() -> new CoreApiException(ErrorType.BAD_REQUEST));
                 hmi.updateEndHub(removeHmi.getStartHub());
                 hmi.removeSubMovement(removeHmi);
             }
@@ -183,7 +183,7 @@ public class HMIService {
                 HubMovementInfo removeHmi = list.stream()
                         .filter(info -> info.getStartHub().equals(removeHubId))
                         .findFirst()
-                        .orElseThrow(() -> new CoreApiException(ErrorType.BAD_REQUEST_ERROR));
+                        .orElseThrow(() -> new CoreApiException(ErrorType.BAD_REQUEST));
 
                 Integer index = removeHmi.getIndex();
                 HubMovementInfo sub = list.get(index - 1);

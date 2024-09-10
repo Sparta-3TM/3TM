@@ -1,4 +1,4 @@
-package com.sparta3tm.companyserver.application.dtos;
+package com.sparta3tm.companyserver.application.dtos.company;
 
 import com.sparta3tm.companyserver.domain.company.Company;
 import com.sparta3tm.companyserver.domain.company.CompanyType;
