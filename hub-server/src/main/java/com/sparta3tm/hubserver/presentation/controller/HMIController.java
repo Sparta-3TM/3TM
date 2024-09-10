@@ -7,6 +7,7 @@ import com.sparta3tm.hubserver.application.dto.hmi.RequestHMIDto;
 import com.sparta3tm.hubserver.application.dto.hmi.ResponseHMIDto;
 import com.sparta3tm.hubserver.application.service.HMIService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

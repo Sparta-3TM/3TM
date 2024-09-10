@@ -10,6 +10,9 @@ import com.sparta3tm.hubserver.domain.entity.HubMovementInfo;
 import com.sparta3tm.hubserver.domain.repository.HMIRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,11 +36,13 @@ public class HMIService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "hmi_cache", key = "args[0]")
     public ResponseHMIDto searchHmiById(Long hmiId) {
         return ResponseHMIDto.of(hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR)));
     }
 
     @Transactional
+    @CachePut(cacheNames = "hmi_cache", key = "args[0]")
     public ResponseHMIDto addUpdateHmi(Long hmiId, AddUpdateHMIDto addUpdateHMIDto) {
         HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
         hubService.searchHubById(hmiId);
@@ -47,10 +52,18 @@ public class HMIService {
     }
 
     @Transactional
+    @CachePut(cacheNames = "hmi_cache", key = "args[0]")
     public ResponseHMIDto removeUpdateHmi(Long hmiId, RemoveUpdateHMIDto removeUpdateHMIDto) {
         HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
         if (hmi.getParentMovementInfo() != null) throw new CoreApiException(ErrorType.BAD_REQUEST);
         return updateConnectionRemoveHmi(hmi, removeUpdateHMIDto);
+    }
+
+    @Transactional
+    @CacheEvict(cacheNames = "hmi_cache", key = "args[0]")
+    public void deleteHmi(Long hmiId, String username) {
+        HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
+        hmi.softDelete(username);
     }
 
     // TODO: 추후 naver api 를 통해 외부 변수들을 고려하여 estimatedTime 과 estimatedDistance 값을 변경하도록 생각해야 할 듯 ( addSubMovement 부분에서.. )
@@ -195,11 +208,6 @@ public class HMIService {
             }
         }
         return ResponseHMIDto.of(hmiRepository.save(hmi));
-    }
-
-    public void deleteHmi(Long hmiId, String username) {
-        HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
-        hmi.softDelete(username);
     }
 
 
