@@ -1,12 +1,16 @@
 package com.sparta3tm.companyserver.domain.company;
 
 import com.sparta3tm.common.BaseEntity;
+import com.sparta3tm.companyserver.domain.product.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -31,6 +35,9 @@ public class Company extends BaseEntity {
 
     @Column(nullable = false)
     private String address;
+
+    @OneToMany(mappedBy = "company")
+    private List<Product> products = new ArrayList<>();
 
     public void updateCompany(Long hubId, String name, String address, CompanyType companyType){
         this.hubId = hubId;

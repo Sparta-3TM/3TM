@@ -8,6 +8,7 @@ import com.sparta3tm.companyserver.application.dtos.company.CompanyUpdateReqDto;
 import com.sparta3tm.companyserver.domain.company.Company;
 import com.sparta3tm.companyserver.domain.company.CompanyRepository;
 import com.sparta3tm.companyserver.domain.company.CompanyType;
+import com.sparta3tm.companyserver.domain.product.Product;
 import com.sparta3tm.companyserver.infrastructure.HubClient;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -97,6 +98,9 @@ public class CompanyService {
         });
 
         try{
+            for(Product product : company.getProducts()){
+                product.softDelete(userId);
+            }
             company.softDelete(userId);
         }catch (Exception e){
             log.error("INTERNAL SERVER ERROR");

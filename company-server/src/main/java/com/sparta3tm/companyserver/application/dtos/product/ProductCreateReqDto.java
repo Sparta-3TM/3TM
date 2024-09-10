@@ -1,5 +1,6 @@
 package com.sparta3tm.companyserver.application.dtos.product;
 
+import com.sparta3tm.companyserver.domain.company.Company;
 import com.sparta3tm.companyserver.domain.product.Product;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -19,9 +20,9 @@ public class ProductCreateReqDto {
     @NotNull
     private Integer quantity;
 
-    public Product toEntity(){
+    public Product toEntity(Company company){
         return Product.builder()
-                .companyId(this.companyId)
+                .company(company)
                 .hubId(this.hubId)
                 .productName(this.productName)
                 .quantity(this.quantity)

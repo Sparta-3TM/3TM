@@ -20,7 +20,7 @@ public class ProductResDto {
     public static ProductResDto from(Product product) {
         return ProductResDto.builder()
                 .id(product.getId())
-                .companyId(product.getCompanyId())
+                .companyId(product.getCompany().getId())
                 .hubId(product.getHubId())
                 .productName(product.getProductName())
                 .quantity(product.getQuantity())

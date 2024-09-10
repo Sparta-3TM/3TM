@@ -6,6 +6,8 @@ import com.sparta3tm.companyserver.application.dtos.product.ProductCreateReqDto;
 import com.sparta3tm.companyserver.application.dtos.product.ProductResDto;
 import com.sparta3tm.companyserver.application.dtos.product.ProductUpdateReqDto;
 import com.sparta3tm.companyserver.application.dtos.product.ProductsUpdateQuantitiesReqDto;
+import com.sparta3tm.companyserver.domain.company.Company;
+import com.sparta3tm.companyserver.domain.company.CompanyRepository;
 import com.sparta3tm.companyserver.domain.product.Product;
 import com.sparta3tm.companyserver.domain.product.ProductRepository;
 import com.sparta3tm.companyserver.infrastructure.HubClient;
@@ -27,7 +29,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final CompanyService companyService;
+    private final CompanyRepository companyRepository;
     private final HubClient hubClient;
 
 
@@ -41,13 +43,12 @@ public class ProductService {
         }
 
         try{
-            companyService.getCompany(createReqDto.getCompanyId());
+            Company company = companyRepository.findById(createReqDto.getCompanyId()).orElseThrow();
+            return ProductResDto.from(productRepository.save(createReqDto.toEntity(company)));
         }catch (Exception e){
             log.error("존재하지 않는 Company ID 입니다.");
             throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
         }
-
-        return ProductResDto.from(productRepository.save(createReqDto.toEntity()));
     }
 
     public ProductResDto getProduct(Long productId) {
@@ -78,8 +79,9 @@ public class ProductService {
             throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
         }
 
+        Company company;
         try{
-            companyService.getCompany(productUpdateReqDto.getCompanyId());
+            company = companyRepository.findById(productUpdateReqDto.getCompanyId()).orElseThrow();
         }catch (Exception e){
             log.error("존재하지 않는 Company ID 입니다.");
             throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
@@ -91,7 +93,7 @@ public class ProductService {
         });
 
         try{
-            product.updateProductInfo(productUpdateReqDto.getCompanyId(), productUpdateReqDto.getHubId(),
+            product.updateProductInfo(company, productUpdateReqDto.getHubId(),
                     productUpdateReqDto.getProductName(), productUpdateReqDto.getQuantity());
         }catch (Exception e){
             log.error("INTERNAL SERVER ERROR");
