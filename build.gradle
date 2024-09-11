@@ -63,3 +63,9 @@ project(':company-server'){
         implementation project(':common')
     }
 }
+
+project(':chore-server'){
+    dependencies {
+        implementation project(':common')
+    }
+}
