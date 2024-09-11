@@ -1,11 +1,11 @@
 package com.sparta3tm.hubserver.hub.controller;
 
-import com.sparta3tm.hubserver.application.dto.RequestHubDto;
-import com.sparta3tm.hubserver.application.dto.ResponseHubDto;
-import com.sparta3tm.hubserver.application.dto.ResponsePageHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.RequestHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.ResponseHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.ResponsePageHubDto;
 import com.sparta3tm.hubserver.application.service.HubService;
 import com.sparta3tm.hubserver.hub.RestDocsTest;
-import com.sparta3tm.hubserver.presentation.HubController;
+import com.sparta3tm.hubserver.presentation.controller.HubController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;

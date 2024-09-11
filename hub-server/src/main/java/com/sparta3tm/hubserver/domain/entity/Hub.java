@@ -1,7 +1,7 @@
 package com.sparta3tm.hubserver.domain.entity;
 
 import com.sparta3tm.common.BaseEntity;
-import com.sparta3tm.hubserver.application.dto.RequestHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.RequestHubDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +22,12 @@ public class Hub extends BaseEntity {
     private Double latitude;
     private Double longitude;
 
+    public Hub(String name, String address, Double latitude, Double longitude) {
+        this.name = name;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 
     public Hub(RequestHubDto requestHubDto) {
         this.name = requestHubDto.hubName();
@@ -35,7 +41,7 @@ public class Hub extends BaseEntity {
         this.address = requestHubDto.address();
         this.latitude = requestHubDto.latitude();
         this.longitude = requestHubDto.longitude();
-
         return this;
     }
+
 }
