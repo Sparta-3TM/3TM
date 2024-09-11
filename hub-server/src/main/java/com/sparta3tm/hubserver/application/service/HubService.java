@@ -58,9 +58,9 @@ public class HubService {
             @CacheEvict(cacheNames = "hub_cache", key = "args[0]"),
             @CacheEvict(cacheNames = "hub_list_cache", allEntries = true)
     })
-    public void deleteHub(Long hubId, String username) {
+    public void deleteHub(Long hubId, String userId) {
         Hub hub = hubRepository.findByIdAndIsDeleteFalse(hubId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
-        hub.softDelete(username);
+        hub.softDelete(userId);
     }
 
     public List<ResponseHubDto> allHub() {

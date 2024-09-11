@@ -11,7 +11,7 @@ ext {
 }
 
 bootJar {
-    mainClass.set('com.sparta3tm.hubserver.HubServerApplication')
+    mainClass.set('com.sparta3tm.orderserver.OrderServerApplication')
 }
 
 dependencies {
@@ -61,10 +61,10 @@ configurations {
 
 openapi3 {
     servers = [
-            { url = 'http://localhost:19093' },
+            { url = 'http://localhost:19095' },
     ]
-    title = 'Hub Server API'
-    description = 'Hub Server API description'
+    title = 'Order Server API'
+    description = 'Order Server API description'
     version = '1.0.0'
     format = 'json'
 }
