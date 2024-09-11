@@ -15,6 +15,7 @@ public class ProductUpdateReqDto {
     private Long hubId;
     @NotNull
     private String productName;
+    private String productDescription;
     @NotNull
     private Integer quantity;
 

@@ -31,13 +31,17 @@ public class Product extends BaseEntity {
     @Column(name = "product_name", nullable = false, length = 100)
     private String productName;
 
+    @Column(name = "product_description", length = 1000)
+    private String productDescription;
+
     @Column(nullable = false)
     private Integer quantity;
 
-    public void updateProductInfo(Company company, Long hubId, String productName, Integer quantity) {
+    public void updateProductInfo(Company company, Long hubId, String productName, String productDescription,Integer quantity) {
         this.company = company;
         this.hubId = hubId;
         this.productName = productName;
+        this.productDescription = productDescription;
         this.quantity = quantity;
     }
 
