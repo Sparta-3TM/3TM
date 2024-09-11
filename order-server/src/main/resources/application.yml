@@ -1,8 +1,9 @@
 server:
-  port: 19093
+  port: 19095
+
 spring:
   application:
-    name: hub-server
+    name: order-server
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres

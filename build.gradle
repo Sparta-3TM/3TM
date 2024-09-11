@@ -52,6 +52,12 @@ project(':hub-server') {
     }
 }
 
+project(':order-server') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+
 project(':company-server'){
     dependencies {
         implementation project(':common')

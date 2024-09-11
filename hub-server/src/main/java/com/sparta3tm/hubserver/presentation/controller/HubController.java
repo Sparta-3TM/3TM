@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class HubController {
 
-    private final String USER_NAME = "X-USER-NAME";
+    private final String USER_ID = "X-USER-ID";
     private final HubService hubService;
 
     @PostMapping
@@ -49,8 +49,8 @@ public class HubController {
     }
 
     @DeleteMapping("/{hubId}")
-    public ApiResponse<?> deleteHub(@PathVariable Long hubId, @RequestHeader(USER_NAME) String username) {
-        hubService.deleteHub(hubId, username);
+    public ApiResponse<?> deleteHub(@PathVariable Long hubId, @RequestHeader(USER_ID) String userId) {
+        hubService.deleteHub(hubId, userId);
         return ApiResponse.success();
     }
 
