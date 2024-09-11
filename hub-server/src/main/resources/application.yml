@@ -45,11 +45,3 @@ management:
   tracing:
     sampling:
       probability: 1.0
-
-gemini:
-  api:
-    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent
-    key: AIzaSyB1jhQqGXajdR8d4sQZcB2dy0GR5_-NVWE
-
-
-
