@@ -80,4 +80,13 @@ public class ProductController {
     ){
         return ApiResponse.success(productService.deleteProduct(productId, userId));
     }
+
+    @Operation(summary = "Product AI Description")
+    @GetMapping("/description")
+    public ApiResponse<?> getAIDescription(
+            @RequestHeader(name = "X-USER-ID", required = false) String userId,
+            @RequestParam(name = "productName") String productName
+    ){
+        return ApiResponse.success(productService.getAIDescription(productName));
+    }
 }
