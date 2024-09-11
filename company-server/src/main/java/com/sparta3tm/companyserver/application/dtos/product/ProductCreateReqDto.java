@@ -17,6 +17,7 @@ public class ProductCreateReqDto {
     private Long hubId;
     @NotNull
     private String productName;
+    private String productDescription;
     @NotNull
     private Integer quantity;
 
@@ -25,6 +26,7 @@ public class ProductCreateReqDto {
                 .company(company)
                 .hubId(this.hubId)
                 .productName(this.productName)
+                .productDescription(this.productDescription)
                 .quantity(this.quantity)
                 .build();
     }
