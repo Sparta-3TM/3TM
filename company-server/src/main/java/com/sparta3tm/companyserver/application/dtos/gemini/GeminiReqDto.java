@@ -1,23 +1,18 @@
 package com.sparta3tm.companyserver.application.dtos.gemini;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class GeminiReqDto {
 
     private List<Content> contents;
 
-    @Getter
-    @Setter
+    @Data
     public class Content{
 
         private List<Part> parts;
@@ -28,8 +23,7 @@ public class GeminiReqDto {
             parts.add(part);
         }
 
-        @Getter
-        @Setter
+        @Data
         @NoArgsConstructor
         @AllArgsConstructor
         public class Part{
@@ -37,7 +31,7 @@ public class GeminiReqDto {
         }
     }
 
-    public void setGeminiReqDto(String text){
+    public void createGeminiReqDto(String text){
         this.contents = new ArrayList<>();
         Content content = new Content(text);
         contents.add(content);

@@ -150,7 +150,7 @@ public class ProductService {
                 + "{GEMINI-API-KEY}";
         String requestText = productName + "에 대한 상품 설명을 50자 이내로 작성해줘.";
         GeminiReqDto request = new GeminiReqDto();
-        request.setGeminiReqDto(requestText);
+        request.createGeminiReqDto(requestText);
         String description = "";
         try{
             GeminiResDto response = restTemplate.postForObject(geminiURL, request, GeminiResDto.class);
