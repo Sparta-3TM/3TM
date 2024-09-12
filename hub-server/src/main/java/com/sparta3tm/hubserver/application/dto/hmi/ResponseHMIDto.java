@@ -11,12 +11,13 @@ import java.util.List;
 public record ResponseHMIDto(Long id,
                              Long startHub,
                              Long endHub,
+                             String address,
                              LocalTime estimatedTime,
                              Double estimatedDistance,
                              List<SubHMIDto> subRoot) implements Serializable {
 
     public static ResponseHMIDto of(HubMovementInfo hubMovementInfo) {
         List<SubHMIDto> list = hubMovementInfo.getSubMovementInfo().stream().map(SubHMIDto::of).toList();
-        return new ResponseHMIDto(hubMovementInfo.getId(), hubMovementInfo.getStartHub(), hubMovementInfo.getEndHub(), hubMovementInfo.getEstimatedTime(), hubMovementInfo.getEstimatedDistance(), list);
+        return new ResponseHMIDto(hubMovementInfo.getId(), hubMovementInfo.getStartHub(), hubMovementInfo.getEndHub(), hubMovementInfo.getStartHubAddress(), hubMovementInfo.getEstimatedTime(), hubMovementInfo.getEstimatedDistance(), list);
     }
 }

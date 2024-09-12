@@ -16,35 +16,46 @@ import org.springframework.web.bind.annotation.*;
 public class HMIController {
 
     private final HMIService hmiService;
+    private final String USER_ID = "X-USER-ID";
 
     @PostMapping
-    public ApiResponse<?> createHmi(@RequestBody RequestHMIDto requestHMIDto) {
+    public ApiResponse<?> createHmi(@RequestBody RequestHMIDto requestHMIDto,
+                                    @RequestHeader(name = USER_ID, required = false) String userId) {
         ResponseHMIDto data = hmiService.createHmi(requestHMIDto);
         return ApiResponse.success(data);
     }
 
     @GetMapping("/{hmiId}")
-    public ApiResponse<?> searchHmiById(@PathVariable Long hmiId) {
+    public ApiResponse<?> searchHmiById(@PathVariable Long hmiId,
+                                        @RequestHeader(name = USER_ID, required = false) String userId) {
         ResponseHMIDto data = hmiService.searchHmiById(hmiId);
         return ApiResponse.success(data);
     }
 
     @PutMapping("/add/{hmiId}")
-    public ApiResponse<?> addUpdateHmi(@PathVariable Long hmiId, @RequestBody AddUpdateHMIDto addUpdateHMIDto) {
+    public ApiResponse<?> addUpdateHmi(@PathVariable Long hmiId, @RequestBody AddUpdateHMIDto addUpdateHMIDto,
+                                       @RequestHeader(name = USER_ID, required = false) String userId) {
         ResponseHMIDto data = hmiService.addUpdateHmi(hmiId, addUpdateHMIDto);
         return ApiResponse.success();
     }
 
     @PutMapping("/remove/{hmiId}")
-    public ApiResponse<?> removeUpdateHmi(@PathVariable Long hmiId, @RequestBody RemoveUpdateHMIDto removeUpdateHMIDto) {
+    public ApiResponse<?> removeUpdateHmi(@PathVariable Long hmiId, @RequestBody RemoveUpdateHMIDto removeUpdateHMIDto,
+                                          @RequestHeader(name = USER_ID, required = false) String userId) {
         ResponseHMIDto data = hmiService.removeUpdateHmi(hmiId, removeUpdateHMIDto);
         return ApiResponse.success();
     }
 
     @DeleteMapping("/{hmiId}")
-    public ApiResponse<?> deleteHmi(@PathVariable Long hmiId, @RequestHeader("X-USER-NAME") String username) {
+    public ApiResponse<?> deleteHmi(@PathVariable Long hmiId, @RequestHeader(USER_ID) String username) {
         hmiService.deleteHmi(hmiId, username);
         return ApiResponse.success();
+    }
+
+    @PutMapping("{hmiId}/remove_startHub")
+    public ApiResponse<?> removeStartHub(@PathVariable Long hmiId, @RequestHeader(USER_ID) String username) {
+        ResponseHMIDto data = hmiService.removeStartHubUpdateHmi(hmiId);
+        return ApiResponse.success(data);
     }
 
     /**@GetMapping

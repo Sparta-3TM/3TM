@@ -23,6 +23,8 @@ public class HubMovementInfo extends BaseEntity {
     private Long startHub;
     private Long endHub;
 
+    private String address;
+
     private LocalTime estimatedTime;
     private Double estimatedDistance;
 
@@ -63,5 +65,10 @@ public class HubMovementInfo extends BaseEntity {
     public void addIndex(int index) {
         this.index = index;
     }
+
+    public void addAddress(String address) {
+        this.address = address;
+    }
+
 
 }
