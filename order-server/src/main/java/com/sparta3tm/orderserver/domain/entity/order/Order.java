@@ -16,15 +16,37 @@ public class Order extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
+    private String userId;
+    @Column(nullable = false)
     private Long productId;
 
+    @Column(nullable = false)
     private Long supplyCompanyId;
+    @Column(nullable = false)
     private Long demandCompanyId;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "delivery_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_id", nullable = false)
     private Delivery delivery;
 
+    @Column(nullable = false)
     private Integer amount;
+
+
+    public Order(String userId, Long productId, Long supplyCompanyId, Long demandCompanyId, Integer amount) {
+        this.productId = productId;
+        this.supplyCompanyId = supplyCompanyId;
+        this.demandCompanyId = demandCompanyId;
+        this.amount = amount;
+    }
+
+    public void addDelivery(Delivery delivery) {
+        this.delivery = delivery;
+    }
+
+    public void updateAmount(Integer amount) {
+        this.amount = amount;
+    }
 
 }

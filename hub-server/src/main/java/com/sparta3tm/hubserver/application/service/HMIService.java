@@ -6,6 +6,7 @@ import com.sparta3tm.hubserver.application.dto.hmi.AddUpdateHMIDto;
 import com.sparta3tm.hubserver.application.dto.hmi.RemoveUpdateHMIDto;
 import com.sparta3tm.hubserver.application.dto.hmi.RequestHMIDto;
 import com.sparta3tm.hubserver.application.dto.hmi.ResponseHMIDto;
+import com.sparta3tm.hubserver.application.dto.hub.ResponseHubDto;
 import com.sparta3tm.hubserver.domain.entity.HubMovementInfo;
 import com.sparta3tm.hubserver.domain.repository.HMIRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +29,11 @@ public class HMIService {
 
     @Transactional
     public ResponseHMIDto createHmi(RequestHMIDto requestHMIDto) {
-        hubService.searchHubById(requestHMIDto.startHub());
+        String address = hubService.searchHubById(requestHMIDto.startHub()).address();
         hubService.searchHubById(requestHMIDto.endHub());
         List<Long> list = requestHMIDto.transitHubId();
         for (Long l : list) hubService.searchHubById(l);
-        return ResponseHMIDto.of(hmiRepository.save(connectionHmi(requestHMIDto, list)));
+        return ResponseHMIDto.of(hmiRepository.save(connectionHmi(requestHMIDto, list, address)));
     }
 
     @Transactional(readOnly = true)
@@ -66,9 +67,17 @@ public class HMIService {
         hmi.softDelete(username);
     }
 
+    @Transactional
+    public ResponseHMIDto removeStartHubUpdateHmi(Long hmiId) {
+        HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
+        if (hmi.getParentMovementInfo() != null) throw new CoreApiException(ErrorType.BAD_REQUEST);
+
+        return updateConnectionRemoveHmi(hmi, new RemoveUpdateHMIDto(hmi.getStartHub()));
+    }
+
     // TODO: 추후 naver api 를 통해 외부 변수들을 고려하여 estimatedTime 과 estimatedDistance 값을 변경하도록 생각해야 할 듯 ( addSubMovement 부분에서.. )
 
-    private static HubMovementInfo connectionHmi(RequestHMIDto requestHMIDto, List<Long> list) {
+    private static HubMovementInfo connectionHmi(RequestHMIDto requestHMIDto, List<Long> list, String address) {
         int index = 0;
         HubMovementInfo hmi = new HubMovementInfo(requestHMIDto.startHub(), requestHMIDto.endHub(), requestHMIDto.estimatedTime(), requestHMIDto.estimatedDistance());
         HubMovementInfo sub = new HubMovementInfo(requestHMIDto.startHub(), list.get(0), requestHMIDto.estimatedTime(), requestHMIDto.estimatedDistance());
@@ -82,6 +91,7 @@ public class HMIService {
         HubMovementInfo subHmi = new HubMovementInfo(list.get(list.size() - 1), requestHMIDto.endHub(), requestHMIDto.estimatedTime(), requestHMIDto.estimatedDistance());
         subHmi.addIndex(index);
         hmi.addSubMovement(subHmi);
+        hmi.addAddress(address);
         return hmi;
     }
 
@@ -103,6 +113,7 @@ public class HMIService {
                 hmi.addSubMovement(sub1);
                 hmi.addSubMovement(sub2);
                 hmi.updateStartHub(addHubId);
+                hmi.addAddress(hubService.searchHubById(addHubId).address());
             } else if (position == 2) {
                 HubMovementInfo sub1 = new HubMovementInfo(hmi.getStartHub(), hmi.getEndHub(), hmi.getEstimatedTime(), hmi.getEstimatedDistance());
                 HubMovementInfo sub2 = new HubMovementInfo(hmi.getEndHub(), addHubId, hmi.getEstimatedTime(), hmi.getEstimatedDistance());
@@ -126,6 +137,7 @@ public class HMIService {
             sub.addIndex(position);
             hmi.addSubMovement(sub);
             hmi.updateStartHub(addHubId);
+            hmi.addAddress(hubService.searchHubById(addHubId).address());
 
         } else if (position == subHmiSize + 1) {
             log.info("end hub add update");
@@ -163,6 +175,7 @@ public class HMIService {
             if (list.size() == 2) {
                 HubMovementInfo sub = list.get(0);
                 hmi.updateStartHub(sub.getEndHub());
+                hmi.addAddress(hubService.searchHubById(sub.getEndHub()).address());
                 list.clear();
             } else {
                 HubMovementInfo removeHmi = list.stream()
@@ -172,6 +185,7 @@ public class HMIService {
 
                 hmi.updateStartHub(removeHmi.getEndHub());
                 hmi.removeSubMovement(removeHmi);
+                hmi.addAddress(hubService.searchHubById(removeHmi.getEndHub()).address());
                 list.forEach(info -> info.addIndex(info.getIndex() - 1));
             }
         } else if (removeHubId.equals(hmi.getEndHub())) {
@@ -209,6 +223,8 @@ public class HMIService {
         }
         return ResponseHMIDto.of(hmiRepository.save(hmi));
     }
+
+
 
 
     /** @Transactional(readOnly = true)

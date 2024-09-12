@@ -20,13 +20,15 @@ public class HubController {
     private final HubService hubService;
 
     @PostMapping
-    public ApiResponse<?> createHub(@RequestBody RequestHubDto requestHubDto) {
+    public ApiResponse<?> createHub(@RequestBody RequestHubDto requestHubDto,
+                                    @RequestHeader(name = USER_ID, required = false) String userId) {
         ResponseHubDto data = hubService.createHub(requestHubDto);
         return ApiResponse.success(data);
     }
 
     @GetMapping("/{hubId}")
-    public ApiResponse<?> searchHubById(@PathVariable Long hubId) {
+    public ApiResponse<?> searchHubById(@PathVariable Long hubId,
+                                        @RequestHeader(name = USER_ID, required = false) String userId) {
         ResponseHubDto data = hubService.searchHubById(hubId);
         return ApiResponse.success(data);
     }
@@ -35,7 +37,8 @@ public class HubController {
     public ApiResponse<?> searchHubList(@RequestParam(defaultValue = "0") int page,
                                         @RequestParam(defaultValue = "10") int size,
                                         @RequestParam(defaultValue = "createdAt") String sort,
-                                        @RequestParam(defaultValue = "DESC") String direction) {
+                                        @RequestParam(defaultValue = "DESC") String direction,
+                                        @RequestHeader(name = USER_ID, required = false) String userId) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort));
         ResponsePageHubDto data = hubService.searchHubList(pageable);
@@ -43,7 +46,8 @@ public class HubController {
     }
 
     @PutMapping("/{hubId}")
-    public ApiResponse<?> updateHub(@PathVariable Long hubId, @RequestBody RequestHubDto requestHubDto) {
+    public ApiResponse<?> updateHub(@PathVariable Long hubId, @RequestBody RequestHubDto requestHubDto,
+                                    @RequestHeader(name = USER_ID, required = false) String userId) {
         ResponseHubDto data = hubService.updateHub(hubId, requestHubDto);
         return ApiResponse.success(data);
     }
