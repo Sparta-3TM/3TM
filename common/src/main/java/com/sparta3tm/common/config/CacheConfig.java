@@ -19,12 +19,6 @@ import java.time.Duration;
 public class CacheConfig {
 
     @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration("localhost", 6379); // Redis 서버 정보
-        return new LettuceConnectionFactory(configuration);
-    }
-
-    @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration configuration = RedisCacheConfiguration
                 .defaultCacheConfig()
