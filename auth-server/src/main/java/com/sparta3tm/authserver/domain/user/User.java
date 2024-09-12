@@ -43,4 +43,10 @@ public class User extends BaseEntity {
         this.phoneNumber = phoneNumber;
         this.userRole = userRole;
     }
+
+    public void updateUserInfo(String userName, String phoneNumber, UserRole userRole) {
+        this.userName = userName;
+        this.phoneNumber = phoneNumber;
+        this.userRole = userRole;
+    }
 }

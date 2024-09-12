@@ -12,7 +12,7 @@ public enum ErrorType {
     NOT_FOUND_ERROR(HttpStatus.NOT_FOUND, ErrorCode.E404, "Not found data.", LogLevel.ERROR),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, ErrorCode.E400, "Bad Request.", LogLevel.ERROR),
     CONFLICT(HttpStatus.CONFLICT, ErrorCode.E409, "Conflict", LogLevel.ERROR),
-    INVALID(HttpStatus.UNAUTHORIZED, ErrorCode.E401, "Invalid", LogLevel.ERROR),;
+    INVALID(HttpStatus.UNAUTHORIZED, ErrorCode.E401, "Invalid", LogLevel.ERROR);
 
 
     private final HttpStatus status;
