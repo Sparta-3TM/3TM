@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -21,7 +23,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     // 회원가입 로직
     public void registerUser(SignUpReqDto signUpReqDto) {
@@ -58,9 +60,15 @@ public class AuthService {
             throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
         }
 
-        String token = jwtTokenProvider.generateToken(user.getId(), user.getUserRole().name());
+        String token = jwtTokenProvider.generateToken(user.getUserId(), user.getUserRole().name());
 
-        redisTemplate.opsForValue().set(token, token);
+        // 사용자 정보와 함께 Redis에 저장
+        Map<String, String> tokenData = new HashMap<>();
+        tokenData.put("userId", user.getUserId());
+        tokenData.put("userRole", user.getUserRole().name());
+
+        // Redis에 토큰과 사용자 정보를 캐싱 (해시 형태로 저장)
+        redisTemplate.opsForHash().putAll(token, tokenData);
 
         // JWT 토큰 생성
         return token;

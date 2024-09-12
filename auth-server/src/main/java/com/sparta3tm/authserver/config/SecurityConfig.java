@@ -33,7 +33,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/login").permitAll()
                         .requestMatchers("/api/users/signUp").permitAll()
                         // 그 외의 모든 요청은 인증이 필요합니다.
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 );
 
         // 설정된 보안 필터 체인을 반환합니다.

@@ -1,6 +1,9 @@
 package com.sparta3tm.gatewayserver.filter;
 
+import com.sparta3tm.gatewayserver.dto.AuthResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -12,12 +15,16 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 @RequiredArgsConstructor
 public class JwtFilter implements GlobalFilter {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final WebClient.Builder webClientBuilder;
+    private final DiscoveryClient discoveryClient;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -36,29 +43,66 @@ public class JwtFilter implements GlobalFilter {
 
         String token = authHeader.substring(7);  // "Bearer " 이후의 JWT 토큰 추출
 
-        // Redis에서 캐싱된 토큰 확인
-        String cachedToken = redisTemplate.opsForValue().get(token);
-        if (cachedToken != null) {
-            // 캐싱된 토큰이 있으면 바로 요청을 통과시킴
-            return chain.filter(exchange);
+        // 캐싱된 토큰과 사용자 정보를 Redis에서 조회
+        Map<Object, Object> cachedTokenData = redisTemplate.opsForHash().entries(token);
+        if (!cachedTokenData.isEmpty()) {
+            // Redis에서 캐싱된 userId와 userRole을 가져옴
+            String userId = (String) cachedTokenData.get("userId");
+            String userRole = (String) cachedTokenData.get("userRole");
+
+            System.out.println("redis userId : " + userId);
+            System.out.println("redis userRole : " + userRole);
+
+            // 헤더에 캐싱된 사용자 정보 추가
+            return this.addUserHeaders(exchange, userId, userRole)
+                    .flatMap(updatedExchange -> chain.filter(updatedExchange));
         }
+
+        ServiceInstance authServerInstance = discoveryClient.getInstances("auth-server")
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No auth-server instances available"));
+
+        String authServerUri = authServerInstance.getUri().toString();
 
         // 캐싱된 토큰이 없을 경우 auth-server로 검증 요청
         return webClientBuilder.build()
                 .post()
-                .uri("http://auth-server/auth/validate-token")  // auth-server로 토큰 검증 요청
+                .uri(authServerUri+"/api/users/validate-token")  // auth-server로 토큰 검증 요청
                 .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .retrieve()
-                .bodyToMono(Boolean.class)  // 검증 결과는 Boolean
-                .flatMap(isValid -> {
-                    if (Boolean.TRUE.equals(isValid)) {
-                        // 검증 성공 시 Redis에 토큰 캐싱
-                        redisTemplate.opsForValue().set(token, token);
-                        return chain.filter(exchange);
+                .bodyToMono(AuthResponseDto.class)
+                .flatMap(authResponse -> {
+                    if (authResponse.isValid()) {
+                        // 검증 성공 시 Redis에 토큰과 사용자 정보 캐싱
+                        Map<String, String> tokenData = new HashMap<>();
+                        tokenData.put("userId", authResponse.getUserId());
+                        tokenData.put("userRole", authResponse.getUserRole());
+
+                        redisTemplate.opsForHash().putAll(token, tokenData);
+
+                        System.out.println("userId : " + authResponse.getUserId());
+                        System.out.println("userRole : " + authResponse.getUserRole());
+                        return this.addUserHeaders(exchange, authResponse.getUserId(), authResponse.getUserRole())
+                                .flatMap(updatedExchange -> chain.filter(updatedExchange));
                     } else {
                         return this.onError(exchange, "Invalid JWT token", HttpStatus.UNAUTHORIZED);
                     }
                 });
+    }
+
+    // 헤더에 사용자 ID와 역할 추가 메소드
+    private Mono<ServerWebExchange> addUserHeaders(ServerWebExchange exchange, String userId, String userRole) {
+        return Mono.fromCallable(() -> {
+            ServerWebExchange updatedExchange = exchange.mutate()
+                    .request(request -> request
+                            .headers(headers -> {
+                                headers.add("X-USER-ID", userId);
+                                headers.add("X-USER-ROLE", userRole);  // 권한 정보 헤더 추가
+                            })
+                    ).build();
+            return updatedExchange;
+        });
     }
 
     // 에러 처리 메소드

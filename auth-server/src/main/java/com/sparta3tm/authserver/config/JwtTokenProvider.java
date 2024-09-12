@@ -25,7 +25,7 @@ public class JwtTokenProvider {
     private long jwtExpirationInMs;
 
     // JWT 토큰 생성
-    public String generateToken(Long userId, String role) {
+    public String generateToken(String userId, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("X-USER-ID", userId);
         claims.put("X-USER-ROLE", role);
@@ -40,6 +40,7 @@ public class JwtTokenProvider {
     }
 
     public boolean validateToken(String token) {
+        System.out.println("토큰 검증!!!!!!!!!!!!!");
         try {
             SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecret));
             Claims claims = Jwts.parser()
@@ -50,5 +51,33 @@ public class JwtTokenProvider {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // 토큰에서 클레임(Claims)을 추출하는 메소드
+    private Claims getAllClaimsFromToken(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecret));
+        Claims claims = Jwts.parser()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token).getBody();
+
+        System.out.println("클레임 추출!!!!!!!!!!!!!");
+
+        return claims;
+
+    }
+
+    // 토큰에서 User ID 추출
+    public String getUserIdFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        System.out.println("ID 추출!!!!!!!!!!!!!");
+        return claims.get("X-USER-ID", String.class);  // 클레임에서 'X-USER-ID' 추출
+    }
+
+    // 토큰에서 User Role 추출
+    public String getUserRoleFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        System.out.println("Role 추출!!!!!!!!!!!!!");
+        return claims.get("X-USER-ROLE", String.class);  // 클레임에서 'X-USER-ROLE' 추출
     }
 }

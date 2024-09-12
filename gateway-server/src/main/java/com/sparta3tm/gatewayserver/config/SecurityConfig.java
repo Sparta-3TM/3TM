@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/api/users/login", "/api/users/signUp").permitAll()  // 로그인, 회원가입 경로 허용
-                        .anyExchange().authenticated()  // 나머지 경로는 인증 필요
+                        .anyExchange().permitAll()  // 나머지 경로는 인증 필요
                 )
                 .build();
     }

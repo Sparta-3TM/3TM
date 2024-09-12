@@ -1,4 +1,4 @@
-package com.sparta3tm.gatewayserver.config;
+package com.sparta3tm.authserver.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

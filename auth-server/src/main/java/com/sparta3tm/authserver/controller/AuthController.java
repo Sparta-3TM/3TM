@@ -1,6 +1,7 @@
 package com.sparta3tm.authserver.controller;
 
 import com.sparta3tm.authserver.application.AuthService;
+import com.sparta3tm.authserver.application.dtos.auth.AuthResponseDto;
 import com.sparta3tm.authserver.application.dtos.user.SignInReqDto;
 import com.sparta3tm.authserver.application.dtos.user.SignUpReqDto;
 import com.sparta3tm.authserver.config.JwtTokenProvider;
@@ -35,12 +36,21 @@ public class AuthController {
         return ApiResponse.success(token);  // JWT 토큰 반환
     }
 
-    // 토큰 검증 API
     @PostMapping("/validate-token")
-    public boolean validateToken(@RequestHeader("Authorization") String tokenHeader) {
+    public AuthResponseDto validateToken(@RequestHeader("Authorization") String tokenHeader) {
         String token = tokenHeader.substring(7);  // "Bearer " 부분 제거
 
-        return jwtTokenProvider.validateToken(token);
+        boolean isValid = jwtTokenProvider.validateToken(token);
+        String userId = jwtTokenProvider.getUserIdFromToken(token);
+        String userRole = jwtTokenProvider.getUserRoleFromToken(token);
+
+        // 검증 결과와 함께 AuthResponse 반환
+        return new AuthResponseDto(isValid, userId, userRole);
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return "test";
     }
 
 
