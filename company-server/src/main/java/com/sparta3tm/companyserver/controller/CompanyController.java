@@ -2,6 +2,7 @@ package com.sparta3tm.companyserver.controller;
 
 import com.sparta3tm.common.support.response.ApiResponse;
 import com.sparta3tm.companyserver.application.CompanyService;
+import com.sparta3tm.companyserver.application.dtos.company.CompaniesInfosReqDto;
 import com.sparta3tm.companyserver.application.dtos.company.CompanyCreateReqDto;
 import com.sparta3tm.companyserver.application.dtos.company.CompanyUpdateReqDto;
 import com.sparta3tm.companyserver.domain.company.CompanyType;
@@ -52,6 +53,14 @@ public class CompanyController {
             ){
         Pageable pageable = PageRequest.of(page-1, size, Sort.by(Sort.Direction.fromString(direction), sort));
         return ApiResponse.success(companyService.searchCompany(keyword, companyType, pageable));
+    }
+
+    @Operation(summary = "Get Companies Hub Id")
+    @PostMapping("/hubIds")
+    public ApiResponse<?> getCompanyById(
+            @RequestHeader(name = "X-USER-ID", required = false) String userId,
+            @RequestBody CompaniesInfosReqDto companiesInfosReqDto){
+        return ApiResponse.success(companyService.getCompaniesHubIds(companiesInfosReqDto));
     }
 
     @Operation(summary = "Company Update")

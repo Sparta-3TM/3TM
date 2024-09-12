@@ -2,9 +2,7 @@ package com.sparta3tm.companyserver.application;
 
 import com.sparta3tm.common.support.error.CoreApiException;
 import com.sparta3tm.common.support.error.ErrorType;
-import com.sparta3tm.companyserver.application.dtos.company.CompanyCreateReqDto;
-import com.sparta3tm.companyserver.application.dtos.company.CompanyResDto;
-import com.sparta3tm.companyserver.application.dtos.company.CompanyUpdateReqDto;
+import com.sparta3tm.companyserver.application.dtos.company.*;
 import com.sparta3tm.companyserver.domain.company.Company;
 import com.sparta3tm.companyserver.domain.company.CompanyRepository;
 import com.sparta3tm.companyserver.domain.company.CompanyType;
@@ -17,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -64,6 +63,35 @@ public class CompanyService {
             log.error("INTERNAL SERVER ERROR");
             throw new CoreApiException(ErrorType.DEFAULT_ERROR);
         }
+    }
+
+    public CompaniesInfosResDto getCompaniesHubIds(CompaniesInfosReqDto companiesInfosReqDto){
+        Long starthub = 1L;
+        List<Long> supplyHubIds = new ArrayList<>();
+
+        boolean isFirst = true;
+        for(Long id : companiesInfosReqDto.getSupplyIds()){
+            Company company = companyRepository.findById(id).orElseThrow(()->{
+                log.error("존재하지 않는 Company ID 입니다.");
+                throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
+            });
+            if(isFirst){
+                starthub = company.getHubId();
+                isFirst = false;
+            }
+            supplyHubIds.add(company.getHubId());
+        }
+
+        List<Long> demandHubIds = new ArrayList<>();
+        for(Long id : companiesInfosReqDto.getDemandIds()){
+            Company company = companyRepository.findById(id).orElseThrow(()->{
+                log.error("존재하지 않는 Company ID 입니다.");
+                throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
+            });
+            demandHubIds.add(company.getHubId());
+        }
+
+        return CompaniesInfosResDto.of(starthub, supplyHubIds, demandHubIds);
     }
 
     @Transactional
