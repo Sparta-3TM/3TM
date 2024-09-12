@@ -4,7 +4,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication()
+@SpringBootApplication(
+        scanBasePackages = {
+                "com.sparta3tm.choreserver",
+                "com.sparta3tm.common"
+        }
+)
 @EnableScheduling
 public class ChoreServerApplication {
 
