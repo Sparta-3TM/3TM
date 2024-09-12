@@ -4,7 +4,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@SpringBootApplication
+@SpringBootApplication(
+        scanBasePackages = {
+                "com.sparta3tm.companyserver",
+                "com.sparta3tm.common"
+        }
+)
 @EnableFeignClients
 public class CompanyServerApplication {
 
