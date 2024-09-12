@@ -1,9 +1,9 @@
 package com.sparta3tm.companyserver.application;
 
+import com.sparta3tm.common.gemini.GeminiReqDto;
+import com.sparta3tm.common.gemini.GeminiResDto;
 import com.sparta3tm.common.support.error.CoreApiException;
 import com.sparta3tm.common.support.error.ErrorType;
-import com.sparta3tm.companyserver.application.dtos.gemini.GeminiReqDto;
-import com.sparta3tm.companyserver.application.dtos.gemini.GeminiResDto;
 import com.sparta3tm.companyserver.application.dtos.product.*;
 import com.sparta3tm.companyserver.domain.company.Company;
 import com.sparta3tm.companyserver.domain.company.CompanyRepository;
@@ -13,6 +13,7 @@ import com.sparta3tm.companyserver.infrastructure.HubClient;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,9 @@ public class ProductService {
     private final CompanyRepository companyRepository;
     private final HubClient hubClient;
     private final RestTemplate restTemplate;
+
+    @Value("${gemini.api.key}")
+    String geminiApiKey;
 
 
     @Transactional
@@ -147,7 +151,7 @@ public class ProductService {
     @Cacheable(value = "productDescription", key = "args[0]")
     public ProductDescriptionResDto getAIDescription(String productName){
         String geminiURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key="
-                + "{GEMINI-API-KEY}";
+                + geminiApiKey;
         String requestText = productName + "에 대한 상품 설명을 50자 이내로 작성해줘.";
         GeminiReqDto request = new GeminiReqDto();
         request.createGeminiReqDto(requestText);

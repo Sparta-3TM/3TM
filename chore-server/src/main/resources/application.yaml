@@ -1,6 +1,6 @@
 spring:
   application:
-    name: company-server
+    name: chore-server
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
@@ -24,7 +24,7 @@ spring:
         highlight_sql: true
 
 server:
-  port: 19094
+  port: 19096
 
 eureka:
   client:
@@ -52,10 +52,24 @@ management:
 
 springdoc:
   swagger-ui:
-    path: /company/swagger-ui
+    path: /chore/swagger-ui
   api-docs:
-    path: /company/v3/api-docs
+    path: /chore/v3/api-docs
+
+weather:
+  service:
+    key: ${WEATHER_SERVICE_KEY}
+
+slack:
+  incoming-hook:
+    url: ${SLACK_URL}
 
 gemini:
   api:
     key: ${GEMINI_API_KEY}
+
+logging:
+  level:
+    org:
+      springframework:
+        cache: DEBUG

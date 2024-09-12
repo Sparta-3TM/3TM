@@ -69,3 +69,9 @@ project(':auth-server'){
         implementation project(':common')
     }
 }
+
+project(':chore-server'){
+    dependencies {
+        implementation project(':common')
+    }
+}

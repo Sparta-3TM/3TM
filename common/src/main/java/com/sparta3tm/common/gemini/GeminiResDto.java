@@ -1,4 +1,4 @@
-package com.sparta3tm.companyserver.application.dtos.gemini;
+package com.sparta3tm.common.gemini;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
