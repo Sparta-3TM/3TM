@@ -1,6 +1,8 @@
-package com.sparta3tm.companyserver.application.dtos.gemini;
+package com.sparta3tm.common.gemini;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
