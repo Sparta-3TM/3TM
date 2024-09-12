@@ -1,9 +1,9 @@
-package com.sparta3tm.hubserver.presentation;
+package com.sparta3tm.hubserver.presentation.controller;
 
 import com.sparta3tm.common.support.response.ApiResponse;
-import com.sparta3tm.hubserver.application.dto.RequestHubDto;
-import com.sparta3tm.hubserver.application.dto.ResponseHubDto;
-import com.sparta3tm.hubserver.application.dto.ResponsePageHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.RequestHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.ResponseHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.ResponsePageHubDto;
 import com.sparta3tm.hubserver.application.service.HubService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class HubController {
 
-    private final String USER_NAME = "X-USER-NAME";
+    private final String USER_ID = "X-USER-ID";
     private final HubService hubService;
 
     @PostMapping
@@ -32,11 +32,10 @@ public class HubController {
     }
 
     @GetMapping
-    public ApiResponse<?> searchHubList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sort,
-            @RequestParam(defaultValue = "DESC") String direction) {
+    public ApiResponse<?> searchHubList(@RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "10") int size,
+                                        @RequestParam(defaultValue = "createdAt") String sort,
+                                        @RequestParam(defaultValue = "DESC") String direction) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort));
         ResponsePageHubDto data = hubService.searchHubList(pageable);
@@ -50,8 +49,8 @@ public class HubController {
     }
 
     @DeleteMapping("/{hubId}")
-    public ApiResponse<?> deleteHub(@PathVariable Long hubId, @RequestHeader(USER_NAME) String username) {
-        ResponseHubDto data = hubService.deleteHub(hubId, username);
+    public ApiResponse<?> deleteHub(@PathVariable Long hubId, @RequestHeader(USER_ID) String userId) {
+        hubService.deleteHub(hubId, userId);
         return ApiResponse.success();
     }
 

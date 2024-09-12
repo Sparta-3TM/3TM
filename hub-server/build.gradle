@@ -34,7 +34,10 @@ dependencies {
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 
     // DB
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     runtimeOnly 'org.postgresql:postgresql'
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
+
 
     // Test
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
@@ -58,7 +61,7 @@ configurations {
 
 openapi3 {
     servers = [
-            { url = 'http://localhost:19099' },
+            { url = 'http://localhost:19093' },
     ]
     title = 'Hub Server API'
     description = 'Hub Server API description'

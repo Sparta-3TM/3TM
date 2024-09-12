@@ -15,6 +15,7 @@ public class ProductResDto {
     private Long companyId;
     private Long hubId;
     private String productName;
+    private String productDescription;
     private Integer quantity;
 
     public static ProductResDto from(Product product) {
@@ -23,6 +24,7 @@ public class ProductResDto {
                 .companyId(product.getCompany().getId())
                 .hubId(product.getHubId())
                 .productName(product.getProductName())
+                .productDescription(product.getProductDescription())
                 .quantity(product.getQuantity())
                 .build();
     }
