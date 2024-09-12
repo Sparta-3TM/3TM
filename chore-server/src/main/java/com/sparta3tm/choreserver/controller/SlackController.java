@@ -24,11 +24,11 @@ public class SlackController {
         return ApiResponse.success(slackService.sendSlackMessage(slackMessageReqDto));
     }
 
-    @Operation(summary = "날씨 정보 API")
-    @GetMapping("/weather/{date}")
-    public ApiResponse<?> getWeatherInfo(@PathVariable(name = "date") String date){
-        return ApiResponse.success(slackService.getWeatherInfo(date));
-    }
+//    @Operation(summary = "날씨 정보 API")
+//    @GetMapping("/weather/{date}")
+//    public ApiResponse<?> getWeatherInfo(@PathVariable(name = "date") String date){
+//        return ApiResponse.success(slackService.getWeatherInfo(date));
+//    }
 
     @Operation(summary = "오늘의 날씨 정보 요약 전송 API")
     @GetMapping("/weather/today")
