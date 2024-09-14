@@ -6,14 +6,16 @@ import com.sparta3tm.hubserver.application.dto.hub.ResponseHubDto;
 import com.sparta3tm.hubserver.application.dto.hub.ResponsePageHubDto;
 import com.sparta3tm.hubserver.application.service.HubService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/hubs")
+@RequestMapping("/api/hub-server/hubs")
 @RequiredArgsConstructor
+@Slf4j
 public class HubController {
 
     private final String USER_ID = "X-USER-ID";
@@ -23,6 +25,8 @@ public class HubController {
     @PostMapping
     public ApiResponse<?> createHub(@RequestBody RequestHubDto requestHubDto,
                                     @RequestHeader(name = USER_ID, required = false) String userId) {
+        log.info("왜 안와요 씨발련아");
+
         ResponseHubDto data = hubService.createHub(requestHubDto);
         return ApiResponse.success(data);
     }

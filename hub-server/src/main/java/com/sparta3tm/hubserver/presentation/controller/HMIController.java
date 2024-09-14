@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/hub_movement_infos")
+@RequestMapping("/api/hub-server/hub_movement_infos")
 public class HMIController {
 
     private final HMIService hmiService;
