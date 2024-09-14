@@ -6,6 +6,8 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +22,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class JwtFilter implements GlobalFilter {
+public class JwtFilter implements GlobalFilter, Ordered {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final WebClient.Builder webClientBuilder;
@@ -110,6 +112,11 @@ public class JwtFilter implements GlobalFilter {
         exchange.getResponse().setStatusCode(httpStatus);
         DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(err.getBytes());
         return exchange.getResponse().writeWith(Mono.just(buffer));
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE + 1;
     }
 }
 

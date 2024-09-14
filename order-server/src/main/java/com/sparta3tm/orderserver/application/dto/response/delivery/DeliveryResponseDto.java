@@ -8,11 +8,10 @@ public record DeliveryResponseDto(Long deliveryId,
                                   Long startHub,
                                   Long endHub,
                                   String address,
-                                  Long recipient,
                                   String recipientSlack) {
 
     public static DeliveryResponseDto of(Delivery delivery) {
-        return new DeliveryResponseDto(delivery.getId(), delivery.getDeliveryStatus().toString(), delivery.getShipperId(), delivery.getStartHub(), delivery.getEndHub(), delivery.getAddress(), delivery.getRecipient(), delivery.getRecipientSlack());
+        return new DeliveryResponseDto(delivery.getId(), delivery.getDeliveryStatus().toString(), delivery.getShipperId(), delivery.getStartHub(), delivery.getEndHub(), delivery.getAddress(), delivery.getRecipientSlack());
     }
 
 }

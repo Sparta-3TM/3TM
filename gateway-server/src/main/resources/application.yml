@@ -13,7 +13,19 @@ spring:
         - id: auth-server
           uri: lb://auth-server
           predicates:
-            - Path=/api/users/**
+            - Path=/api/auth-server/**
+        - id: company-server
+          uri: lb://company-server
+          predicates:
+            - Path=/api/company-server/**
+        - id: order-server
+          uri: lb://order-server
+          predicates:
+            - Path=/api/order-server/**
+        - id: hub-server
+          uri: lb://hub-server
+          predicates:
+              - Path=/api/hub-server/**
       discovery:
         locator:
           enabled: true
@@ -22,4 +34,9 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:19090/eureka/
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+
 

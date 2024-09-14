@@ -58,4 +58,5 @@ springdoc:
 
 gemini:
   api:
-    key: ${GEMINI_API_KEY}
+    key: AIzaSyB1jhQqGXajdR8d4sQZcB2dy0GR5_-NVWE
+#    ${GEMINI_API_KEY}

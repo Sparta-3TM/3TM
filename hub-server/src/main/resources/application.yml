@@ -45,3 +45,8 @@ management:
   tracing:
     sampling:
       probability: 1.0
+
+naver:
+  map:
+    client_id: 887vwee4r8
+    client_secret: BW98ZrMi4YQAxPJENiKDLQmQtwnrgfe7MNnCHiy9
