@@ -18,6 +18,10 @@ public record ResponseHMIDto(Long id,
 
     public static ResponseHMIDto of(HubMovementInfo hubMovementInfo) {
         List<SubHMIDto> list = hubMovementInfo.getSubMovementInfo().stream().map(SubHMIDto::of).toList();
-        return new ResponseHMIDto(hubMovementInfo.getId(), hubMovementInfo.getStartHub(), hubMovementInfo.getEndHub(), hubMovementInfo.getStartHubAddress(), hubMovementInfo.getEstimatedTime(), hubMovementInfo.getEstimatedDistance(), list);
+        return new ResponseHMIDto(hubMovementInfo.getId(), hubMovementInfo.getStartHub(), hubMovementInfo.getEndHub(), hubMovementInfo.getAddress(), hubMovementInfo.getEstimatedTime(), hubMovementInfo.getEstimatedDistance(), list);
     }
+
+
+
+
 }

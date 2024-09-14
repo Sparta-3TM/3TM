@@ -7,8 +7,12 @@ import com.sparta3tm.hubserver.application.dto.hmi.RemoveUpdateHMIDto;
 import com.sparta3tm.hubserver.application.dto.hmi.RequestHMIDto;
 import com.sparta3tm.hubserver.application.dto.hmi.ResponseHMIDto;
 import com.sparta3tm.hubserver.application.dto.hub.ResponseHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.ResponseHubManagerDto;
+import com.sparta3tm.hubserver.domain.entity.Hub;
 import com.sparta3tm.hubserver.domain.entity.HubMovementInfo;
 import com.sparta3tm.hubserver.domain.repository.HMIRepository;
+import com.sparta3tm.hubserver.infrastructure.client.OrderClient;
+import com.sparta3tm.hubserver.infrastructure.client.dto.DeliveryUpdateHubDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -17,6 +21,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,6 +31,7 @@ public class HMIService {
 
     private final HMIRepository hmiRepository;
     private final HubService hubService;
+    private final OrderClient orderClient;
 
     @Transactional
     public ResponseHMIDto createHmi(RequestHMIDto requestHMIDto) {
@@ -44,26 +50,47 @@ public class HMIService {
 
     @Transactional
     @CachePut(cacheNames = "hmi_cache", key = "args[0]")
-    public ResponseHMIDto addUpdateHmi(Long hmiId, AddUpdateHMIDto addUpdateHMIDto) {
+    public ResponseHMIDto addUpdateHmi(Long hmiId, AddUpdateHMIDto addUpdateHMIDto, String userId, String userRole) {
         HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
         hubService.searchHubById(hmiId);
         hubService.searchHubById(addUpdateHMIDto.addHubId());
         if (hmi.getParentMovementInfo() != null) throw new CoreApiException(ErrorType.BAD_REQUEST);
-        return updateConnectionAddHmi(hmi, addUpdateHMIDto);
+
+
+        try {
+            ResponseHMIDto response = updateConnectionAddHmi(hmi, addUpdateHMIDto);
+            orderClient.updateDeliveryByHmi(hmiId, new DeliveryUpdateHubDto("IN_DELIVERY", response.startHub(), response.endHub(), response.address()), userId, userRole);
+
+            return response;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new CoreApiException(ErrorType.DEFAULT_ERROR);
+        }
     }
 
     @Transactional
     @CachePut(cacheNames = "hmi_cache", key = "args[0]")
-    public ResponseHMIDto removeUpdateHmi(Long hmiId, RemoveUpdateHMIDto removeUpdateHMIDto) {
+    public ResponseHMIDto removeUpdateHmi(Long hmiId, RemoveUpdateHMIDto removeUpdateHMIDto, String userId, String userRole) {
         HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
         if (hmi.getParentMovementInfo() != null) throw new CoreApiException(ErrorType.BAD_REQUEST);
-        return updateConnectionRemoveHmi(hmi, removeUpdateHMIDto);
+
+        try {
+            ResponseHMIDto response = updateConnectionRemoveHmi(hmi, removeUpdateHMIDto);
+            orderClient.updateDeliveryByHmi(hmiId, new DeliveryUpdateHubDto("IN_DELIVERY", response.startHub(), response.endHub(), response.address()), userId, userRole);
+            return response;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new CoreApiException(ErrorType.DEFAULT_ERROR);
+        }
     }
 
     @Transactional
     @CacheEvict(cacheNames = "hmi_cache", key = "args[0]")
     public void deleteHmi(Long hmiId, String username) {
         HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
+        if (hmi.getParentMovementInfo() == null) throw new CoreApiException(ErrorType.BAD_REQUEST);
+
+
         hmi.softDelete(username);
     }
 
@@ -224,7 +251,21 @@ public class HMIService {
         return ResponseHMIDto.of(hmiRepository.save(hmi));
     }
 
+    public List<ResponseHubManagerDto> searchHmiManager(Long hmiId, String userId, String userRole) {
+        HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
+        if (hmi.getParentMovementInfo() != null) throw new CoreApiException(ErrorType.BAD_REQUEST);
 
+        List<Long> list = new ArrayList<>();
+        hmi.getSubMovementInfo().forEach(sub -> list.add(sub.getStartHub()));
+        list.add(hmi.getEndHub());
+        List<Hub> hubs = hubService.searchHubByIdIn(list);
+        List<ResponseHubManagerDto> responseList = new ArrayList<>();
+        hubs.forEach(hub -> responseList.add(new ResponseHubManagerDto(hub.getManagerId())));
+
+        return responseList;
+
+
+    }
 
 
     /** @Transactional(readOnly = true)

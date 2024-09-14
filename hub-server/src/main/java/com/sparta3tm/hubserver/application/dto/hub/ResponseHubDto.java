@@ -8,10 +8,11 @@ public record ResponseHubDto(Long id,
                              String hubName,
                              String address,
                              Double latitude,
-                             Double longitude) implements Serializable {
+                             Double longitude,
+                             String managerId) implements Serializable {
 
     public static ResponseHubDto of(Hub hub) {
-        return new ResponseHubDto(hub.getId(), hub.getName(), hub.getAddress(), hub.getLatitude(), hub.getLongitude());
+        return new ResponseHubDto(hub.getId(), hub.getName(), hub.getAddress(), hub.getLatitude(), hub.getLongitude(), hub.getManagerId());
     }
 
 }

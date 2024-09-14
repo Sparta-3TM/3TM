@@ -1,5 +1,6 @@
 package com.sparta3tm.hubserver.application.service;
 
+import com.sparta3tm.common.support.RoleCheck;
 import com.sparta3tm.common.support.error.CoreApiException;
 import com.sparta3tm.common.support.error.ErrorType;
 import com.sparta3tm.hubserver.application.dto.hub.RequestHubDto;
@@ -25,6 +26,7 @@ import java.util.List;
 public class HubService {
 
     private final HubRepository hubRepository;
+    private final RoleCheck roleCheck = new RoleCheck();
 
     @Transactional
     @CacheEvict(cacheNames = "hub_list_cache", allEntries = true)
@@ -63,7 +65,20 @@ public class HubService {
         hub.softDelete(userId);
     }
 
+    public List<Hub> searchHubByIdIn(List<Long> hubIdList) {
+        return hubRepository.findAllByIdIn(hubIdList);
+    }
+
+
+
     public List<ResponseHubDto> allHub() {
         return hubRepository.findAllByIsDeleteFalse().stream().map(ResponseHubDto::of).toList();
     }
+
+    public ResponseHubDto updateManager(Long hubId, String userId, String userRole) {
+        if (roleCheck.CHECK_SHIPPER(userRole) || roleCheck.CHECK_COMPANY(userRole))
+            throw new CoreApiException(ErrorType.BAD_REQUEST);
+        Hub hub = hubRepository.findByIdAndIsDeleteFalse(hubId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
+        return ResponseHubDto.of(hubRepository.save(hub.updateManager(userId)));
+        }
 }

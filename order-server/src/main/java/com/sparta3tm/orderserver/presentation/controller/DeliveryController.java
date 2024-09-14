@@ -2,8 +2,10 @@ package com.sparta3tm.orderserver.presentation.controller;
 
 import com.sparta3tm.common.support.response.ApiResponse;
 import com.sparta3tm.orderserver.application.dto.request.delivery.DeliveryUpdateDto;
+import com.sparta3tm.orderserver.application.dto.request.delivery.DeliveryUpdateHubDto;
 import com.sparta3tm.orderserver.application.dto.response.delivery.DeliveryResponseDto;
 import com.sparta3tm.orderserver.application.service.DeliveryService;
+import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,14 +44,28 @@ public class DeliveryController {
         return ApiResponse.success(data);
     }
 
-    @PutMapping("/{deliveryId}")
-    public ApiResponse<?> updateDeliveryStatus(@PathVariable Long deliveryId,
-                                               @RequestBody DeliveryUpdateDto deliveryStatusDto,
-                                               @RequestHeader(name = USER_ID, required = false) String userId,
-                                               @RequestHeader(name = USER_ROLE, required = false) String userRole) {
-        DeliveryResponseDto data = deliveryService.updateDelivery(deliveryId, deliveryStatusDto, userId, userRole);
+    @PatchMapping("/remove_start/{deliveryId}")
+    public ApiResponse<?> updateDelivery(@PathVariable Long deliveryId,
+                                         @RequestBody DeliveryUpdateDto deliveryUpdateDto,
+                                         @RequestHeader(name = USER_ID, required = false) String userId,
+                                         @RequestHeader(name = USER_ROLE, required = false) String userRole) {
+        DeliveryResponseDto data = deliveryService.updateDelivery(deliveryId, deliveryUpdateDto, userId, userRole);
         return ApiResponse.success(data);
     }
+
+    @PatchMapping("/update_hmi/{hmiId}")
+    ApiResponse<?> updateDeliveryByHmi(@PathVariable Long hmiId,
+                                              @RequestBody DeliveryUpdateHubDto deliveryUpdateHubDto,
+                                              @RequestHeader(name = USER_ID, required = false) String userId,
+                                              @RequestHeader(name = USER_ROLE, required = false) String userRole) {
+        deliveryService.updateDeliveryByHmi(hmiId, deliveryUpdateHubDto, userId, userRole);
+        return ApiResponse.success();
+    }
+
+
+    // hmi 가 변경될 때, Delivery 의 hmi 도 바껴야함
+
+    // hmi 변경 메서드 수행시 Delivery
 
 
 

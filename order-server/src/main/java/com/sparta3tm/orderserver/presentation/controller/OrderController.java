@@ -26,8 +26,9 @@ public class OrderController {
 
     @PostMapping
     public ApiResponse<?> createOrder(@RequestBody OrderListRequestDto orderRequestDto,
-                                      @RequestHeader(USER_ID) String userId) {
-        orderDeliveryService.createOrder(orderRequestDto, userId);
+                                      @RequestHeader(USER_ID) String userId,
+                                      @RequestHeader(USER_ROLE) String userRole) {
+        orderDeliveryService.createOrder(orderRequestDto, userId, userRole);
         return ApiResponse.success();
     }
 
@@ -44,7 +45,7 @@ public class OrderController {
                                           @RequestParam(defaultValue = "10") int size,
                                           @RequestParam(defaultValue = "createdAt") String sort,
                                           @RequestParam(defaultValue = "DESC") String direction,
-                                          @RequestHeader(name = USER_ID, required = false) String userId,
+                                          @RequestHeader(name = USER_ID) String userId,
                                           @RequestHeader(USER_ROLE) String userRole) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort));
         List<OrderResponseDto> data = orderService.searchOrderList(pageable, userId, userRole);
@@ -55,8 +56,8 @@ public class OrderController {
     public ApiResponse<?> updateOrder(@PathVariable Long orderId,
                                       @PathVariable Long deliveryId,
                                       @RequestBody UpdateAmountOrderDto updateAmountOrderDto,
-                                      @RequestHeader(name = USER_ID, required = false) String userId,
-                                      @RequestHeader(name = USER_ROLE, required = false) String userRole) {
+                                      @RequestHeader(name = USER_ID) String userId,
+                                      @RequestHeader(USER_ROLE) String userRole) {
         OrderResponseDto data = orderDeliveryService.updateOrder(orderId, deliveryId, updateAmountOrderDto, userId, userRole);
         return ApiResponse.success(data);
     }
@@ -64,8 +65,8 @@ public class OrderController {
     @DeleteMapping("/{deliveryId}/{orderId}")
     public ApiResponse<?> deleteOrder(@PathVariable Long orderId,
                                       @PathVariable Long deliveryId,
-                                      @RequestHeader(name = USER_ID, required = false) String userId,
-                                      @RequestHeader(name = USER_ROLE, required = false) String userRole) {
+                                      @RequestHeader(name = USER_ID) String userId,
+                                      @RequestHeader(USER_ROLE) String userRole) {
         orderDeliveryService.deleteOrder(orderId, deliveryId, userId, userRole);
         return ApiResponse.success();
     }

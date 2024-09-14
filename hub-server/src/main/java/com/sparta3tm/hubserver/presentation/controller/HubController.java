@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class HubController {
 
     private final String USER_ID = "X-USER-ID";
+    private final String USER_ROLE = "X-USER-ROLE";
     private final HubService hubService;
 
     @PostMapping
@@ -56,6 +57,14 @@ public class HubController {
     public ApiResponse<?> deleteHub(@PathVariable Long hubId, @RequestHeader(USER_ID) String userId) {
         hubService.deleteHub(hubId, userId);
         return ApiResponse.success();
+    }
+
+    @PatchMapping("/{hubId}/update_manager")
+    public ApiResponse<?> updateManager(@PathVariable Long hubId,
+                                        @RequestHeader(USER_ID) String userId,
+                                        @RequestHeader(USER_ROLE) String userRole) {
+        ResponseHubDto data = hubService.updateManager(hubId, userId, userRole);
+        return ApiResponse.success(data);
     }
 
 }
