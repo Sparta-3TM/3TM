@@ -29,6 +29,13 @@ public class UserService {
         }));
     }
 
+    public UserResDto getUserByUserId(String userId) {
+        return UserResDto.from(userRepository.findByUserId(userId).orElseThrow(()->{
+            log.error("존재하지 않는 User ID 입니다.");
+            throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
+        }));
+    }
+
     public List<UserResDto> searchUser(String keyword, Pageable pageable) {
         try{
             if(keyword == null){
@@ -75,6 +82,8 @@ public class UserService {
             throw new CoreApiException(ErrorType.DEFAULT_ERROR);
         }
 
-        return "Product " + user.getId() + " is Deleted";
+        return "User " + user.getId() + " is Deleted";
     }
+
+
 }

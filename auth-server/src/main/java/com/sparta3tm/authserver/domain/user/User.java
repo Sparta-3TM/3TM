@@ -1,5 +1,6 @@
 package com.sparta3tm.authserver.domain.user;
 
+import com.sparta3tm.authserver.domain.DM.DeliveryManager;
 import com.sparta3tm.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -35,6 +36,9 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", nullable = false)
     private UserRole userRole;
+
+    @OneToOne(mappedBy = "user")
+    private DeliveryManager deliveryManager;
 
     public User(String userId, String userName, String password, String phoneNumber, UserRole userRole) {
         this.userId = userId;
