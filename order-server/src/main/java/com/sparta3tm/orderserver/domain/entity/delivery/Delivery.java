@@ -1,6 +1,7 @@
 package com.sparta3tm.orderserver.domain.entity.delivery;
 
 import com.sparta3tm.common.BaseEntity;
+import com.sparta3tm.orderserver.application.dto.request.delivery.DeliveryUpdateHubDto;
 import com.sparta3tm.orderserver.domain.entity.delivery_route.DeliveryRoute;
 import com.sparta3tm.orderserver.domain.entity.order.Order;
 import jakarta.persistence.*;
@@ -69,5 +70,13 @@ public class Delivery extends BaseEntity {
 
     public void updateRecipientSlack(String recipientSlack) {
         this.recipientSlack = recipientSlack;
+    }
+
+    public Delivery updateDeliveryByHmi(DeliveryUpdateHubDto deliveryUpdateHubDto) {
+        deliveryStatus = DeliveryStatus.valueOf(deliveryUpdateHubDto.deliveryStatus());
+        startHub = deliveryUpdateHubDto.startHub();
+        endHub = deliveryUpdateHubDto.endHub();
+        address = deliveryUpdateHubDto.address();
+        return this;
     }
 }

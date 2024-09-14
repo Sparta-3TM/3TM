@@ -17,10 +17,16 @@ public class Hub extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
+    @Column(nullable = false)
     private String address;
+    @Column(nullable = false)
     private Double latitude;
+    @Column(nullable = false)
     private Double longitude;
+
+    private String managerId;
 
     public Hub(String name, String address, Double latitude, Double longitude) {
         this.name = name;
@@ -44,4 +50,8 @@ public class Hub extends BaseEntity {
         return this;
     }
 
+    public Hub updateManager(String userId) {
+        managerId = userId;
+        return this;
+    }
 }

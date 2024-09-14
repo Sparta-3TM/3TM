@@ -16,4 +16,6 @@ public interface HubRepository extends JpaRepository<Hub, Long> {
 
     Page<Hub> findAllByIsDeleteFalse(Pageable pageable);
     List<Hub> findAllByIsDeleteFalse();
+
+    List<Hub> findAllByIdIn(List<Long> ids);
 }
