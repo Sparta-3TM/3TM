@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/order-server/deliveries")
+@RequestMapping("/api/deliveries")
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
@@ -44,7 +44,8 @@ public class DeliveryController {
         return ApiResponse.success(data);
     }
 
-    @PatchMapping("/remove_start/{deliveryId}")
+
+    @PatchMapping("/{deliveryId}")
     public ApiResponse<?> updateDelivery(@PathVariable Long deliveryId,
                                          @RequestBody DeliveryUpdateDto deliveryUpdateDto,
                                          @RequestHeader(name = USER_ID, required = false) String userId,
@@ -53,6 +54,8 @@ public class DeliveryController {
         return ApiResponse.success(data);
     }
 
+    
+    // Feign 용도
     @PatchMapping("/update_hmi/{hmiId}")
     ApiResponse<?> updateDeliveryByHmi(@PathVariable Long hmiId,
                                               @RequestBody DeliveryUpdateHubDto deliveryUpdateHubDto,

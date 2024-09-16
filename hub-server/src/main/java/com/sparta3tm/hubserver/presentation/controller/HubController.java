@@ -13,7 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/hub-server/hubs")
+@RequestMapping("/api/hubs")
 @RequiredArgsConstructor
 @Slf4j
 public class HubController {

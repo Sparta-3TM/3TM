@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/hub-server/hub_movement_infos")
+@RequestMapping("/api/hub_movement_infos")
 public class HMIController {
 
     private final HMIService hmiService;
@@ -58,16 +58,8 @@ public class HMIController {
     public ApiResponse<?> deleteHmi(@PathVariable Long hmiId,
                                     @RequestHeader(name = USER_ID) String userId,
                                     @RequestHeader(name = USER_ROLE) String userRole) {
-        hmiService.deleteHmi(hmiId, userId);
+        hmiService.deleteHmi(hmiId, userId, userRole);
         return ApiResponse.success();
-    }
-
-    @PutMapping("{hmiId}/remove_startHub")
-    public ApiResponse<?> removeStartHub(@PathVariable Long hmiId,
-                                         @RequestHeader(name = USER_ID) String userId,
-                                         @RequestHeader(name = USER_ROLE) String userRole) {
-        ResponseHMIDto data = hmiService.removeStartHubUpdateHmi(hmiId);
-        return ApiResponse.success(data);
     }
 
     @GetMapping("/{hmiId}/manager")

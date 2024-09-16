@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@ToString
 public class HubMovementInfo extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,7 +65,7 @@ public class HubMovementInfo extends BaseEntity {
         this.index = index;
     }
 
-    public void addAddress(String address) {
+    public void updateAddress(String address) {
         this.address = address;
     }
 

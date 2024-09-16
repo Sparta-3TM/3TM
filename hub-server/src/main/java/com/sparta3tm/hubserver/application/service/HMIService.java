@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -80,18 +81,14 @@ public class HMIService {
         ResponseHubDto addHub = hubService.searchHubById(addUpdateHMIDto.addHubId());
         list.add(addUpdateHMIDto.position(), addHub);
 
-        String start = list.getFirst().longitude() + "," + list.getFirst().latitude();
-        String end = list.getLast().longitude() + "," + list.getLast().latitude();
+        System.out.println("list = " + list);
 
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 1; i < list.size() - 1; i++)
-            stringBuilder.append(list.get(i).longitude().toString()).append(",").append(list.get(i).latitude().toString()).append("|");
-        String sub = stringBuilder.substring(0, stringBuilder.length() - 1);
-
+        String[] strings = requestNaverApi(list);
+        System.out.println("strings = " + Arrays.toString(strings));
         try {
-            List<StopoverDto> stopoverDtoList = naverService.naverApi(new String[]{start, end, sub}, list.size() - 2);
+            List<StopoverDto> stopoverDtoList = naverService.naverApi(strings, list.size() - 2);
             ResponseHMIDto response = ResponseHMIDto.of(updateConnectionAddHmi(hmi, stopoverDtoList, addUpdateHMIDto));
-            orderClient.updateDeliveryByHmi(hmiId, new DeliveryUpdateHubDto("IN_DELIVERY", response.startHub(), response.endHub(), response.address()), userId, userRole);
+            orderClient.updateDeliveryByHmi(hmiId, new DeliveryUpdateHubDto("IN_DELIVERY", response.startHub(), response.endHub(), response.address(), response.estimatedTime(), response.estimatedDistance()), userId, userRole);
             return response;
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -106,9 +103,20 @@ public class HMIService {
         HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
         if (hmi.getParentMovementInfo() != null) throw new CoreApiException(ErrorType.BAD_REQUEST);
 
+        List<ResponseHubDto> list = new ArrayList<>();
+        List<HubMovementInfo> subList = hmi.getSubMovementInfo();
+        if (subList.isEmpty()) throw new CoreApiException(ErrorType.BAD_REQUEST);
+
+        for (HubMovementInfo info : subList)
+            if (!info.getStartHub().equals(removeUpdateHMIDto.removeHubId()))
+                list.add(hubService.searchHubById(info.getStartHub()));
+        if (!hmi.getEndHub().equals(removeUpdateHMIDto.removeHubId()))
+            list.add(hubService.searchHubById(hmi.getEndHub()));
+
         try {
-            ResponseHMIDto response = updateConnectionRemoveHmi(hmi, removeUpdateHMIDto);
-            orderClient.updateDeliveryByHmi(hmiId, new DeliveryUpdateHubDto("IN_DELIVERY", response.startHub(), response.endHub(), response.address()), userId, userRole);
+            List<StopoverDto> stopoverDtoList = naverService.naverApi(requestNaverApi(list), list.size() - 2);
+            ResponseHMIDto response = updateConnectionRemoveHmi(hmi, stopoverDtoList, removeUpdateHMIDto);
+            orderClient.updateDeliveryByHmi(hmiId, new DeliveryUpdateHubDto("IN_DELIVERY", response.startHub(), response.endHub(), response.address(), response.estimatedTime(), response.estimatedDistance()), userId, userRole);
             return response;
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -118,19 +126,22 @@ public class HMIService {
 
     @Transactional
     @CacheEvict(cacheNames = "hmi_cache", key = "args[0]")
-    public void deleteHmi(Long hmiId, String username) {
+    public void deleteHmi(Long hmiId, String username, String userRole) {
         HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
+        if (!userRole.equals("MASTER")) throw new CoreApiException(ErrorType.BAD_REQUEST);
         if (hmi.getParentMovementInfo() == null) throw new CoreApiException(ErrorType.BAD_REQUEST);
-
-
         hmi.softDelete(username);
     }
 
-    @Transactional
-    public ResponseHMIDto removeStartHubUpdateHmi(Long hmiId) {
-        HubMovementInfo hmi = hmiRepository.findByIdAndIsDeleteFalse(hmiId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
-        if (hmi.getParentMovementInfo() != null) throw new CoreApiException(ErrorType.BAD_REQUEST);
-        return updateConnectionRemoveHmi(hmi, new RemoveUpdateHMIDto(hmi.getStartHub()));
+    private String[] requestNaverApi(List<ResponseHubDto> list) {
+        String start = list.getFirst().longitude() + "," + list.getFirst().latitude();
+        String end = list.getLast().longitude() + "," + list.getLast().latitude();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 1; i < list.size() - 1; i++)
+            stringBuilder.append(list.get(i).longitude().toString()).append(",").append(list.get(i).latitude().toString()).append("|");
+        String sub = stringBuilder.substring(0, stringBuilder.length() - 1);
+        return new String[]{start, end, sub};
     }
 
 
@@ -143,17 +154,21 @@ public class HMIService {
 
         HubMovementInfo hmi = new HubMovementInfo(requestHMIDto.startHub(), requestHMIDto.endHub(), convertDoubleToLocalTime(stopoverInfoList.getLast().duration()), stopoverInfoList.getLast().distance());
         HubMovementInfo sub = new HubMovementInfo(requestHMIDto.startHub(), list.getFirst(), convertDoubleToLocalTime(stopoverInfoList.getFirst().duration()), stopoverInfoList.getFirst().distance());
+        hmi.updateAddress(startAddress);
+        hmi.addSubMovement(sub);
         sub.addIndex(index++);
 
         for (int i = 1; i < list.size(); i++) {
             HubMovementInfo subHmi = new HubMovementInfo(list.get(i - 1), list.get(i), convertDoubleToLocalTime(stopoverInfoList.get(i).duration()), stopoverInfoList.get(i).distance());
+            System.out.println("subHmi = " + subHmi);
             subHmi.addIndex(index++);
             hmi.addSubMovement(subHmi);
         }
         HubMovementInfo subHmi = new HubMovementInfo(list.getLast(), requestHMIDto.endHub(), convertDoubleToLocalTime(stopoverInfoList.get(stopoverInfoList.size() - 2).duration()), stopoverInfoList.get(stopoverInfoList.size() - 2).distance());
+        System.out.println("subHmi2 = " + subHmi);
+
         subHmi.addIndex(index);
-        hmi.addSubMovement(sub);
-        hmi.addAddress(startAddress);
+        hmi.addSubMovement(subHmi);
         return hmi;
     }
 
@@ -178,7 +193,7 @@ public class HMIService {
                 sub2.addIndex(index);
                 hmi.addSubMovement(sub1);
                 hmi.addSubMovement(sub2);
-                hmi.addAddress(hubService.searchHubById(addHubId).address());
+                hmi.updateAddress(hubService.searchHubById(addHubId).address());
             } else if (position == 2) {
                 hmi.updateEndHub(addHubId);
                 hmi.updateDistance(stopoverDtoList.getLast().distance());
@@ -203,23 +218,22 @@ public class HMIService {
             }
         } else if (position == 0) {
             log.info("start hub add update");
-            hmi.updateStartHub(addHubId);
             hmi.updateDistance(stopoverDtoList.getLast().distance());
             hmi.updateDuration(convertDoubleToLocalTime(stopoverDtoList.getLast().duration()));
 
             HubMovementInfo sub = new HubMovementInfo(addHubId, hmi.getStartHub(), convertDoubleToLocalTime(stopoverDtoList.getFirst().duration()), stopoverDtoList.getFirst().distance());
+            hmi.updateStartHub(addHubId);
             for (int i = 0; i < list.size(); i++) {
                 list.get(i).addIndex(list.get(i).getIndex() + 1);
-                list.get(i).updateDuration(convertDoubleToLocalTime(stopoverDtoList.get(i+1).duration()));
-                list.get(i).updateDistance(stopoverDtoList.get(i+1).distance());
+                list.get(i).updateDuration(convertDoubleToLocalTime(stopoverDtoList.get(i + 1).duration()));
+                list.get(i).updateDistance(stopoverDtoList.get(i + 1).distance());
             }
 
             sub.addIndex(position);
             hmi.addSubMovement(sub);
-            hmi.addAddress(hubService.searchHubById(addHubId).address());
+            hmi.updateAddress(hubService.searchHubById(addHubId).address());
         } else if (position == subHmiSize + 1) {
             log.info("end hub add update");
-            hmi.updateEndHub(addHubId);
             hmi.updateDistance(stopoverDtoList.getLast().distance());
             hmi.updateDuration(convertDoubleToLocalTime(stopoverDtoList.getLast().duration()));
 
@@ -228,70 +242,111 @@ public class HMIService {
                 list.get(i).updateDistance(stopoverDtoList.get(i).distance());
             }
             HubMovementInfo sub = new HubMovementInfo(hmi.getEndHub(), addHubId, convertDoubleToLocalTime(stopoverDtoList.get(stopoverDtoList.size() - 2).duration()), stopoverDtoList.get(stopoverDtoList.size() - 2).distance());
+            hmi.updateEndHub(addHubId);
             sub.addIndex(list.size());
             hmi.addSubMovement(sub);
         } else if (0 < position && position <= subHmiSize) {
             log.info("middle hub add update");
+            hmi.updateDistance(stopoverDtoList.getLast().distance());
+            hmi.updateDuration(convertDoubleToLocalTime(stopoverDtoList.getLast().duration()));
+
             HubMovementInfo sub = list.get(position - 1);
-            sub.updateEndHub(addHubId);
-
             HubMovementInfo addHub = new HubMovementInfo(addHubId, sub.getEndHub(), convertDoubleToLocalTime(stopoverDtoList.get(position).duration()), stopoverDtoList.get(position).distance());
-            addHub.addIndex(position);
-            hmi.addSubMovement(addHub);
 
-            for (int i = position; i < list.size() ; i++) list.get(i).addIndex(list.get(i).getIndex() + 1);
+            sub.updateEndHub(addHubId);
+            addHub.addIndex(position);
+
+
+            for (int i = position; i < list.size(); i++) list.get(i).addIndex(list.get(i).getIndex() + 1);
             stopoverDtoList.remove(position);
 
             for (int i = 0; i < list.size(); i++) {
                 list.get(i).updateDistance(stopoverDtoList.get(i).distance());
                 list.get(i).updateDuration(convertDoubleToLocalTime(stopoverDtoList.get(i).duration()));
             }
+            hmi.addSubMovement(addHub);
         } else throw new CoreApiException(ErrorType.BAD_REQUEST);
 
+        for (HubMovementInfo info : hmi.getSubMovementInfo()) {
+            System.out.println("info startHub: " + info.getStartHub());
+            System.out.println("info endHub: " + info.getEndHub());
+            System.out.println("info distance: " + info.getDistance());
+            System.out.println("info duration: " + info.getDuration());
+            System.out.println();
+        }
+
+        System.out.println("parent hmi startHub: " + hmi.getStartHub());
+        System.out.println("parent hmi endHub: " + hmi.getEndHub());
+        System.out.println("parent hmi distance: " + hmi.getDistance());
+        System.out.println("parent hmi duration: " + hmi.getDuration());
         return hmiRepository.save(hmi);
     }
 
-    private ResponseHMIDto updateConnectionRemoveHmi(HubMovementInfo hmi, RemoveUpdateHMIDto removeUpdateHMIDto) {
+    private ResponseHMIDto updateConnectionRemoveHmi(HubMovementInfo hmi, List<StopoverDto> stopoverDtoList, RemoveUpdateHMIDto removeUpdateHMIDto) {
         List<HubMovementInfo> list = hmi.getSubMovementInfo();
         Long removeHubId = removeUpdateHMIDto.removeHubId();
 
-        if (list.isEmpty()) {
-            throw new CoreApiException(ErrorType.BAD_REQUEST);
-        } else if (removeHubId.equals(hmi.getStartHub())) {
+        if (removeHubId.equals(hmi.getStartHub())) {
             log.info("start hub remove update");
             if (list.size() == 2) {
-                HubMovementInfo sub = list.get(0);
+                HubMovementInfo sub = list.getFirst();
+                hmi.removeSubMovement(sub);
+
+
                 hmi.updateStartHub(sub.getEndHub());
-                hmi.addAddress(hubService.searchHubById(sub.getEndHub()).address());
+                hmi.updateDistance(stopoverDtoList.getLast().distance());
+                hmi.updateAddress(hubService.searchHubById(sub.getEndHub()).address());
+                hmi.updateDuration(convertDoubleToLocalTime(stopoverDtoList.getLast().duration()));
                 list.clear();
             } else {
-                HubMovementInfo removeHmi = list.stream()
+                HubMovementInfo sub = list.stream()
                         .filter(info -> info.getStartHub().equals(removeHubId))
                         .findFirst()
                         .orElseThrow(() -> new CoreApiException(ErrorType.BAD_REQUEST));
 
-                hmi.updateStartHub(removeHmi.getEndHub());
-                hmi.removeSubMovement(removeHmi);
-                hmi.addAddress(hubService.searchHubById(removeHmi.getEndHub()).address());
-                list.forEach(info -> info.addIndex(info.getIndex() - 1));
+                hmi.removeSubMovement(sub);
+                for (int i = 0; i < stopoverDtoList.size() - 1; i++) {
+                    list.get(i).updateDistance(stopoverDtoList.get(i).distance());
+                    list.get(i).updateDuration(convertDoubleToLocalTime(stopoverDtoList.get(i).duration()));
+                    list.get(i).addIndex(list.get(i).getIndex() - 1);
+                }
+
+                hmi.updateStartHub(sub.getEndHub());
+                hmi.updateDistance(stopoverDtoList.getLast().distance());
+                hmi.updateAddress(hubService.searchHubById(sub.getEndHub()).address());
+                hmi.updateDuration(convertDoubleToLocalTime(stopoverDtoList.getLast().duration()));
             }
         } else if (removeHubId.equals(hmi.getEndHub())) {
             log.info("end hub remove update");
             if (list.size() == 2) {
-                HubMovementInfo sub = list.get(list.size() - 1);
+                HubMovementInfo sub = list.getLast();
                 hmi.updateEndHub(sub.getStartHub());
+                hmi.updateDistance(stopoverDtoList.getLast().distance());
+                hmi.updateDuration(convertDoubleToLocalTime(stopoverDtoList.getLast().duration()));
+
                 list.clear();
             } else {
-                HubMovementInfo removeHmi = list.stream()
+                HubMovementInfo sub = list.stream()
                         .filter(info -> info.getEndHub().equals(removeHubId))
                         .findFirst()
                         .orElseThrow(() -> new CoreApiException(ErrorType.BAD_REQUEST));
-                hmi.updateEndHub(removeHmi.getStartHub());
-                hmi.removeSubMovement(removeHmi);
+
+                hmi.removeSubMovement(sub);
+                for (int i = 0; i < stopoverDtoList.size() - 1; i++) {
+                    list.get(i).updateDistance(stopoverDtoList.get(i).distance());
+                    list.get(i).updateDuration(convertDoubleToLocalTime(stopoverDtoList.get(i).duration()));
+                }
+
+                hmi.updateEndHub(sub.getStartHub());
+                hmi.updateDistance(stopoverDtoList.getLast().distance());
+                hmi.updateDuration(convertDoubleToLocalTime(stopoverDtoList.getLast().duration()));
             }
         } else {
             log.info("middle hub remove update");
             if (list.size() == 2) {
+                hmi.updateDistance(stopoverDtoList.getLast().distance());
+                hmi.updateDuration(convertDoubleToLocalTime(stopoverDtoList.getLast().duration()));
+
                 list.clear();
             } else {
                 HubMovementInfo removeHmi = list.stream()
@@ -299,15 +354,29 @@ public class HMIService {
                         .findFirst()
                         .orElseThrow(() -> new CoreApiException(ErrorType.BAD_REQUEST));
 
+                hmi.removeSubMovement(removeHmi);
                 Integer index = removeHmi.getIndex();
                 HubMovementInfo sub = list.get(index - 1);
                 sub.updateEndHub(removeHmi.getEndHub());
-                hmi.removeSubMovement(removeHmi);
-                list.forEach(info -> {
-                    if (info.getIndex() > index) info.addIndex(info.getIndex() - 1);
-                });
+
+                for (int i = 0; i < list.size(); i++) {
+                    list.get(i).updateDistance(stopoverDtoList.get(i).distance());
+                    list.get(i).updateDuration(convertDoubleToLocalTime(stopoverDtoList.get(i).duration()));
+                    if (list.get(i).getIndex() > index) list.get(i).addIndex(list.get(i).getIndex() - 1);
+                }
             }
         }
+        for (HubMovementInfo info : hmi.getSubMovementInfo()) {
+            System.out.println("info startHub: " + info.getStartHub());
+            System.out.println("info endHub: " + info.getEndHub());
+            System.out.println("info distance: " + info.getDistance());
+            System.out.println("info duration: " + info.getDuration());
+            System.out.println();
+        }
+        System.out.println("parent hmi startHub: " + hmi.getStartHub());
+        System.out.println("parent hmi endHub: " + hmi.getEndHub());
+        System.out.println("parent hmi distance: " + hmi.getDistance());
+        System.out.println("parent hmi duration: " + hmi.getDuration());
         return ResponseHMIDto.of(hmiRepository.save(hmi));
     }
 
@@ -323,25 +392,17 @@ public class HMIService {
         hubs.forEach(hub -> responseList.add(new ResponseHubManagerDto(hub.getManagerId())));
 
         return responseList;
-
-
     }
 
     public static LocalTime convertDoubleToLocalTime(Double time) {
-        if (time == null) {
-            return null;
-        }
+        if (time == null) return null;
         int hours = (int) Math.floor(time);
         int minutes = (int) Math.round((time - hours) * 60);
+        System.out.println("hours = " + hours);
+        System.out.println("minutes = " + minutes);
 
+        if (minutes == 60) minutes = 59;
         return LocalTime.of(hours, minutes);
     }
 
-
-    /** @Transactional(readOnly = true)
-     * 솔직히 페이징 조회가 이 복잡한 Hmi 에서 의미가 있나 싶음 없애는게 낫다고 판단.
-    public ResponsePageHMIDto searchHmi(Pageable pageable) {
-    Page<HubMovementInfo> list = hmiRepository.findAllByIsDeleteFalse(pageable);
-    return ResponsePageHMIDto.of(list.stream().map(ResponseHMIDto::of).toList(), list.hasNext());
-    }*/
 }

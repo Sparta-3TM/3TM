@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
-import java.util.List;
 
 @Entity
 @Getter
@@ -28,12 +27,12 @@ public class DeliveryRoute extends BaseEntity {
     @Column(nullable = false)
     private Double distance;
     @Column(nullable = false)
-    private LocalTime duration_time;
+    private LocalTime durationTime;
 
     public DeliveryRoute(Long hmiId, Double distance, LocalTime duration_time) {
         this.hmiId = hmiId;
         this.distance = distance;
-        this.duration_time = duration_time;
+        this.durationTime = duration_time;
     }
 
     public void addDelivery(Delivery delivery) {

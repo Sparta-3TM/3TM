@@ -5,8 +5,6 @@ import java.util.List;
 
 public record RequestHMIDto(Long startHub,
                             Long endHub,
-                            LocalTime estimatedTime,
-                            Double estimatedDistance,
                             List<Long> transitHubId) {
 
 }
