@@ -13,11 +13,16 @@ import com.sparta3tm.common.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,6 +51,21 @@ public class SlackService {
             log.error("Internal Server Error");
             throw new CoreApiException(ErrorType.DEFAULT_ERROR);
         }
+    }
+
+    @Transactional
+    @CachePut(cacheNames = "Reset", key = "args[0]")
+    public String sendResetCode(String userId){
+        String resetCode = generateRandomCode();
+
+        String message = "비밀번호 초기화 코드는 \n" +
+                "[ *" + resetCode + "* ]" +
+                "\n입니다.";
+        SlackMessageReqDto messageReqDto = new SlackMessageReqDto(userId, message);
+
+        sendSlackMessage(messageReqDto);
+
+        return resetCode;
     }
 
     @Transactional
@@ -82,5 +102,20 @@ public class SlackService {
         }
 
         return result;
+    }
+
+    // 6자리 랜덤 코드 생성 메서드
+    public String generateRandomCode(){
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder sb = new StringBuilder();
+
+        for(int i=0;i<6;i++){
+            int index = secureRandom.nextInt(characters.length());
+            sb.append(characters.charAt(index));
+        }
+
+        return sb.toString();
     }
 }

@@ -14,6 +14,22 @@ spring:
           uri: lb://auth-server
           predicates:
             - Path=/api/users/**
+        - id: company-server
+          uri: lb://company-server
+          predicates:
+            - Path=/api/companies/**, /api/products/**
+        - id: hub-server
+          uri: lb://hub-server
+          predicates:
+            - Path=/api/hubs/**, /api/hub_movement_infos/**
+        - id: order-server
+          uri: lb://order-server
+          predicates:
+            - Path=/api/orders/**, /api/deliveries/**
+        - id: chore-server
+          uri: lb://chore-server
+          predicates:
+            - Path=/api/slack/**
       discovery:
         locator:
           enabled: true
