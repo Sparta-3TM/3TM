@@ -6,6 +6,7 @@ import lombok.Getter;
 
 @Getter
 public class ApiResponse<S> {
+
     private final ResultType result;
 
     private final S data;
@@ -33,5 +34,9 @@ public class ApiResponse<S> {
     public static ApiResponse<?> error(ErrorType error, Object errorData) {
         return new ApiResponse<>(ResultType.ERROR, null, new ErrorMessage(error, errorData));
     }
-
+    public ApiResponse() {
+        this.result = null;
+        this.data = null;
+        this.error = null;
+    }
 }

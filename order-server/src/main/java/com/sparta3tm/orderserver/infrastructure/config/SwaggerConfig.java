@@ -1,4 +1,4 @@
-package com.sparta3tm.authserver.config;
+package com.sparta3tm.orderserver.infrastructure.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -14,21 +14,21 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Arrays;
 
 @OpenAPIDefinition(
-        info = @Info(title = "3TM Auth Server API 명세서",
-                description = "3TM Auth Server API 명세서",
+        info = @Info(title = "3TM Order Server API 명세서",
+                description = "3TM Order Server API 명세서",
                 version = "v1"))
 @Configuration
 public class SwaggerConfig {
 
     private final Server[] SERVERS = {
-            new Server().url("http://localhost:19092").description("Server"),
+            new Server().url("http://localhost:19095").description("Server"),
             new Server().url("http://localhost:19091").description("Gateway Server")
     };
 
     @Bean
-    public GroupedOpenApi publicAPI() {
+    public GroupedOpenApi publicAPI(){
         return GroupedOpenApi.builder()
-                .group("com.sparta3tm.authserver")
+                .group("com.sparta3tm.orderserver")
                 .pathsToMatch("/**")
                 .build();
     }
