@@ -1,0 +1,202 @@
+### Local Variable
+@host=http://localhost:19091
+
+
+###
+# @name 회원가입
+POST {{host}}/api/users/signUp
+Content-Type: application/json
+
+{
+  "userId": "userId",
+  "username": "username",
+  "password": "password",
+  "phoneNumber": "01012345678",
+  "role": "MASTER"
+}
+
+###
+# @name 로그인
+POST http://localhost:19091/api/users/login
+Content-Type: application/json
+
+{
+  "userId": "userId",
+  "password": "password"
+}
+
+> {%
+    client.global.set("accessToken", response.body.data);
+    client.log(client.global.get("accessToken"))
+%}
+
+###
+# @name 토큰 검증
+POST http://localhost:19091/api/users/validate-token
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+###
+# @name 업체 생성 - 1
+POST http://localhost:19091/api/companies
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "hubId": 1,
+  "name": "COMPANY_1",
+  "companyType": "PRODUCER",
+  "address": "ADDRESS_1"
+}
+
+###
+# @name 업체 생성 - 2
+POST http://localhost:19091/api/companies
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "hubId": 2,
+  "name": "COMPANY_2",
+  "companyType": "PRODUCER",
+  "address": "ADDRESS_2"
+}
+
+###
+# @name 업체 생성 - 3
+POST http://localhost:19091/api/companies
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "hubId": 3,
+  "name": "COMPANY_3",
+  "companyType": "PRODUCER",
+  "address": "ADDRESS_3"
+}
+
+###
+# @name 업체 생성 - 4
+POST http://localhost:19091/api/companies
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "hubId": 4,
+  "name": "COMPANY_4",
+  "companyType": "PRODUCER",
+  "address": "ADDRESS_4"
+}
+
+###
+# @name 상품 생성 - 1
+POST http://localhost:19091/api/products
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "companyId": 1,
+  "hubId": 1,
+  "productName": "PRODUCT_NAME_1",
+  "productDescription": "PRODUCT_DESCRIPTION_1",
+  "quantity": 100
+}
+
+###
+# @name 상품 생성 - 2
+POST http://localhost:19091/api/products
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "companyId": 2,
+  "hubId": 2,
+  "productName": "PRODUCT_NAME_2",
+  "productDescription": "PRODUCT_DESCRIPTION_2",
+  "quantity": 100
+}
+
+###
+# @name 상품 생성 - 3
+POST http://localhost:19091/api/products
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "companyId": 3,
+  "hubId": 3,
+  "productName": "PRODUCT_NAME_3",
+  "productDescription": "PRODUCT_DESCRIPTION_3",
+  "quantity": 100
+}
+
+
+###
+# @name 상품 생성 - 4
+POST http://localhost:19091/api/products
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "companyId": 4,
+  "hubId": 4,
+  "productName": "PRODUCT_NAME_4",
+  "productDescription": "PRODUCT_DESCRIPTION_4",
+  "quantity": 100
+}
+
+###
+# @name 상품 생성 - 5
+POST http://localhost:19091/api/products
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "companyId": 4,
+  "hubId": 4,
+  "productName": "PRODUCT_NAME_5",
+  "productDescription": "PRODUCT_DESCRIPTION_5",
+  "quantity": 100
+}
+
+###
+# @name 주문 생성
+POST http://localhost:19091/api/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "orderDtoList": [
+    {
+      "productId": 1,
+      "amount": 30,
+      "supplyCompanyId": 1,
+      "demandCompanyId": 2
+    },
+    {
+      "productId": 2,
+      "amount": 30,
+      "supplyCompanyId": 2,
+      "demandCompanyId": 3
+    },
+    {
+      "productId": 3,
+      "amount": 30,
+      "supplyCompanyId": 3,
+      "demandCompanyId": 4
+    },
+    {
+      "productId": 4,
+      "amount": 30,
+      "supplyCompanyId": 4,
+      "demandCompanyId": 3
+    },
+    {
+      "productId": 5,
+      "amount": 30,
+      "supplyCompanyId": 4,
+      "demandCompanyId": 2
+    }
+  ],
+  "shipperId": 1
+}

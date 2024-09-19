@@ -6,10 +6,10 @@ import com.sparta3tm.orderserver.infrastructure.client.dto.company.ProductsUpdat
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "company-server")
+@FeignClient(name = "company-server", url = "http://localhost:19094")
 public interface CompanyClient {
 
-    @PatchMapping("/api/companies")
+    @PatchMapping("/api/products")
     ApiResponse<?> updateProduct(@RequestHeader(name = "X-USER-ID", required = false) String userId,
                                  @RequestBody ProductsUpdateQuantitiesReqDto productsUpdateQuantitiesReqDto);
 

@@ -31,7 +31,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Slf4j(topic = "hmi-service")
 public class HMIService {
 
     private final HMIRepository hmiRepository;
@@ -51,9 +51,13 @@ public class HMIService {
         for (Long stopover : requestHMIDto.transitHubId()) stopoverList.add(hubService.searchHubById(stopover));
 
         StringBuilder stopoverHubList = new StringBuilder();
+        String sub = "";
         for (ResponseHubDto stopoverHub : stopoverList)
             stopoverHubList.append(stopoverHub.longitude().toString()).append(",").append(stopoverHub.latitude().toString()).append("|");
-        String sub = stopoverHubList.substring(0, stopoverHubList.length() - 1);
+        if (!stopoverHubList.isEmpty()) {
+            sub = stopoverHubList.substring(0, stopoverHubList.length() - 1);
+        }
+
 
         try {
             List<StopoverDto> stopoverInfoList = naverService.naverApi(new String[]{start, end, sub}, stopoverList.size());
@@ -149,8 +153,10 @@ public class HMIService {
         int index = 0;
         List<Long> list = requestHMIDto.transitHubId();
 
-        if (list.isEmpty())
-            return new HubMovementInfo(requestHMIDto.startHub(), requestHMIDto.endHub(), convertDoubleToLocalTime(stopoverInfoList.getFirst().duration()), stopoverInfoList.getFirst().distance());
+        if (list.isEmpty()) {
+            return new HubMovementInfo(requestHMIDto.startHub(), requestHMIDto.endHub(), startAddress, convertDoubleToLocalTime(stopoverInfoList.getFirst().duration()), stopoverInfoList.getFirst().distance());
+        }
+
 
         HubMovementInfo hmi = new HubMovementInfo(requestHMIDto.startHub(), requestHMIDto.endHub(), convertDoubleToLocalTime(stopoverInfoList.getLast().duration()), stopoverInfoList.getLast().distance());
         HubMovementInfo sub = new HubMovementInfo(requestHMIDto.startHub(), list.getFirst(), convertDoubleToLocalTime(stopoverInfoList.getFirst().duration()), stopoverInfoList.getFirst().distance());
@@ -168,6 +174,9 @@ public class HMIService {
 
         subHmi.addIndex(index);
         hmi.addSubMovement(subHmi);
+
+        System.out.println("hmi.getAddress() = " + hmi.getAddress());
+
         return hmi;
     }
 

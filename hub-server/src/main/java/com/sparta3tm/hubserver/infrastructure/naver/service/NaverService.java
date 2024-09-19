@@ -67,17 +67,20 @@ public class NaverService {
         Double distance = 0D;
         Double duration = 0D;
 
-        for (int i = 0; i <= stopoverNum; i++) {
-            log.debug(i + 1 + " 번째 경유지까지의 거리 = {} km", summary.getWaypoints().get(i).getDistance() / 1000D);
-            log.debug(i + 1 + " 번째 경유지까지의 소요시간 = {} h", summary.getWaypoints().get(i).getDuration() / 1000D / 3600);
+        if (stopoverNum != 0) {
+            for (int i = 0; i < stopoverNum; i++) {
+                log.debug(i + 1 + " 번째 경유지까지의 거리 = {} km", summary.getWaypoints().get(i).getDistance() / 1000D);
+                log.debug(i + 1 + " 번째 경유지까지의 소요시간 = {} h", summary.getWaypoints().get(i).getDuration() / 1000D / 3600);
 
-            distance += summary.getWaypoints().get(i).getDistance();
-            duration += summary.getWaypoints().get(i).getDuration();
-            result.add(new StopoverDto(summary.getWaypoints().get(i).getDistance() / 1000D, summary.getWaypoints().get(i).getDuration() / 1000D / 3600));
+                distance += summary.getWaypoints().get(i).getDistance();
+                duration += summary.getWaypoints().get(i).getDuration();
+                result.add(new StopoverDto(summary.getWaypoints().get(i).getDistance() / 1000D, summary.getWaypoints().get(i).getDuration() / 1000D / 3600));
+            }
+
+            log.debug(stopoverNum + 1 + " 번째 경유지까지의 거리 = {} km", ((summary.getDistance() - distance) / 1000D));
+            log.debug(stopoverNum + 1 + " 번째 경유지까지의 소요시간 = {} h", ((summary.getDuration() - duration) / 1000D / 3600));
+
         }
-
-        log.debug(stopoverNum + 1 + " 번째 경유지까지의 거리 = {} km", ((summary.getDistance() - distance) / 1000D));
-        log.debug(stopoverNum + 1 + " 번째 경유지까지의 소요시간 = {} h", ((summary.getDuration() - duration) / 1000D / 3600));
 
 
         log.debug("최종 목적지까지의 거리 = {} km", summary.getDistance() / 1000D);

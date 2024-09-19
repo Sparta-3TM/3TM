@@ -1,12 +1,10 @@
 package com.sparta3tm.orderserver.infrastructure.client.dto.company;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CompaniesInfosResDto {
@@ -14,7 +12,4 @@ public class CompaniesInfosResDto {
     private List<Long> supplyHubIds;
     private List<Long> demandHubIds;
 
-    public static CompaniesInfosResDto of (Long startHubId, List<Long> supplyHubIds, List<Long> demandHubIds){
-        return new CompaniesInfosResDto(startHubId, supplyHubIds, demandHubIds);
-    }
 }

@@ -35,6 +35,7 @@ public class Order extends BaseEntity {
 
 
     public Order(String userId, Long productId, Long supplyCompanyId, Long demandCompanyId, Integer amount) {
+        this.userId = userId;
         this.productId = productId;
         this.supplyCompanyId = supplyCompanyId;
         this.demandCompanyId = demandCompanyId;

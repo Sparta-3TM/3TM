@@ -1,5 +1,6 @@
 package com.sparta3tm.orderserver.application.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta3tm.common.support.RoleCheck;
 import com.sparta3tm.common.support.error.CoreApiException;
 import com.sparta3tm.common.support.error.ErrorType;
@@ -22,6 +23,7 @@ import com.sparta3tm.orderserver.infrastructure.client.dto.hub.RequestHMIDto;
 import com.sparta3tm.orderserver.infrastructure.client.dto.hub.ResponseHMIDto;
 import com.sparta3tm.orderserver.infrastructure.client.dto.hub.ResponseHubManagerDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,11 +36,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderDeliveryService {
 
     private final DeliveryRepository deliveryRepository;
     private final CompanyClient companyClient;
     private final HubClient hubClient;
+    private final ObjectMapper objectMapper;
     private final RoleCheck roleCheck = new RoleCheck();
 
     @Transactional
@@ -56,33 +60,47 @@ public class OrderDeliveryService {
             productAmount.add(-dto.amount());
         });
 
-        CompaniesInfosResDto companyDto = (CompaniesInfosResDto) companyClient.getCompanyById(userId, new CompaniesInfosReqDto(supplyCompanyList, demandCompanyList)).getData();
 
-        List<Long> supplyList = companyDto.getSupplyHubIds();
-        List<Long> demandList = companyDto.getDemandHubIds();
-        Set<Long> combinedSet = new LinkedHashSet<>(supplyList);
-        combinedSet.addAll(demandList);
+        try {
+            Object companyData = companyClient.getCompanyById(userId, new CompaniesInfosReqDto(supplyCompanyList, demandCompanyList)).getData();
+            CompaniesInfosResDto companyDto = objectMapper.convertValue(companyData, CompaniesInfosResDto.class);
 
-        List<Long> commonList = new ArrayList<>(combinedSet);
-        commonList.remove(supplyList.get(0));
-        commonList.remove(demandList.get(0));
+            List<Long> supplyList = companyDto.getSupplyHubIds();
+            List<Long> demandList = companyDto.getDemandHubIds();
+            Set<Long> combinedSet = new LinkedHashSet<>(supplyList);
+            combinedSet.addAll(demandList);
 
-        ResponseHMIDto data = (ResponseHMIDto) hubClient.createHmi(new RequestHMIDto(supplyList.get(0), demandList.get(0), commonList), userId, userRole).getData();
+            List<Long> commonList = new ArrayList<>(combinedSet);
+            commonList.remove(supplyList.get(0));
+            commonList.remove(demandList.get(0));
 
-        companyClient.updateProduct(userId, new ProductsUpdateQuantitiesReqDto(productId, productAmount));
-        Long hubMovementId = data.id();
-        Double distance = data.estimatedDistance();
-        LocalTime estimateTime = data.estimatedTime();
-        Long startHub = data.startHub();
-        Long endHub = data.endHub();
-        String address = data.address();
+            Object hubData = hubClient.createHmi(new RequestHMIDto(supplyList.get(0), demandList.get(0), commonList), userId, userRole).getData();
+            ResponseHMIDto data = objectMapper.convertValue(hubData, ResponseHMIDto.class);
 
-        List<Order> orderList = new ArrayList<>();
-        orderDtoList.forEach(dto -> orderList.add(new Order(userId, dto.productId(), dto.supplyCompanyId(), dto.demandCompanyId(), dto.amount())));
-        DeliveryRoute deliveryRoute = new DeliveryRoute(hubMovementId, distance, estimateTime);
-        Delivery delivery = new Delivery(deliveryRoute, DeliveryStatus.WAITING_HUB, shipperId, startHub, endHub, address, userId);
-        orderList.forEach(delivery::addOrder);
-        deliveryRepository.save(delivery);
+            companyClient.updateProduct(userId, new ProductsUpdateQuantitiesReqDto(productId, productAmount));
+            Long hubMovementId = data.id();
+            Double distance = data.estimatedDistance();
+            LocalTime estimateTime = data.estimatedTime();
+            Long startHub = data.startHub();
+            Long endHub = data.endHub();
+            String address = data.address();
+
+            System.out.println("data = " + data);
+
+            List<Order> orderList = new ArrayList<>();
+            orderDtoList.forEach(dto -> orderList.add(new Order(userId, dto.productId(), dto.supplyCompanyId(), dto.demandCompanyId(), dto.amount())));
+            DeliveryRoute deliveryRoute = new DeliveryRoute(hubMovementId, distance, estimateTime);
+
+            Delivery delivery = new Delivery(deliveryRoute, DeliveryStatus.WAITING_HUB, shipperId, startHub, endHub, address, userId);
+            orderList.forEach(delivery::addOrder);
+
+            deliveryRepository.save(delivery);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new CoreApiException(ErrorType.BAD_REQUEST);
+        }
+
     }
 
     @Transactional

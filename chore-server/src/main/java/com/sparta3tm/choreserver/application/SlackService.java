@@ -48,7 +48,7 @@ public class SlackService {
             log.info(slackRestTemplate.postForObject(slackURL, request, String.class));
             return SlackMessageResDto.from(slackRepository.save(slackMessageReqDto.toEntity(LocalDateTime.now())));
         }catch (Exception e){
-            log.error("Internal Server Error");
+            log.error(e.getMessage());
             throw new CoreApiException(ErrorType.DEFAULT_ERROR);
         }
     }

@@ -37,6 +37,14 @@ public class HubMovementInfo extends BaseEntity {
     @Setter
     private HubMovementInfo parentMovementInfo;
 
+    public HubMovementInfo(Long startHub, Long endHub, String address, LocalTime duration, Double distance) {
+        this.startHub = startHub;
+        this.endHub = endHub;
+        this.address = address;
+        this.duration = duration;
+        this.distance = distance;
+    }
+
     public HubMovementInfo(Long startHub, Long endHub, LocalTime duration, Double distance) {
         this.startHub = startHub;
         this.endHub = endHub;

@@ -5,7 +5,7 @@ import com.sparta3tm.orderserver.infrastructure.client.dto.hub.RequestHMIDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "hub-server")
+@FeignClient(name = "hub-server", url = "http://localhost:19093")
 public interface HubClient {
 
     @PutMapping("/api/hub_movement_infos/{hmiId}/remove_startHub")
@@ -17,8 +17,8 @@ public interface HubClient {
                                            @RequestHeader("X-USER-ID") String userId,
                                            @RequestHeader("X-USER-ROLE") String userRole);
 
-    @PostMapping
-    public ApiResponse<?> createHmi(@RequestBody RequestHMIDto requestHMIDto,
+    @PostMapping("/api/hub_movement_infos")
+    ApiResponse<?> createHmi(@RequestBody RequestHMIDto requestHMIDto,
                                     @RequestHeader("X-USER-ID") String userId,
                                     @RequestHeader("X-USER-ROLE") String userRole);
 
