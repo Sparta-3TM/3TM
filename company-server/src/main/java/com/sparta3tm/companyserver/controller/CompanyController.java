@@ -1,5 +1,6 @@
 package com.sparta3tm.companyserver.controller;
 
+import com.sparta3tm.common.support.error.ErrorType;
 import com.sparta3tm.common.support.response.ApiResponse;
 import com.sparta3tm.companyserver.application.CompanyService;
 import com.sparta3tm.companyserver.application.dtos.company.CompaniesInfosReqDto;
@@ -27,22 +28,31 @@ public class CompanyController {
     @Operation(summary = "Company Create")
     @PostMapping
     public ApiResponse<?> createCompany(
+            @RequestHeader(name = "X-USER-ROLE", required = false) String userRole,
             @RequestHeader(name = "X-USER-ID", required = false) String userId,
             @RequestBody CompanyCreateReqDto companyCreateReqDto) {
-        return ApiResponse.success(companyService.createCompany(companyCreateReqDto));
+        if("MASTER".equals(userRole) || "COMPANY".equals(userRole)) {
+            return ApiResponse.success(companyService.createCompany(companyCreateReqDto));
+        }else
+            return ApiResponse.error(ErrorType.FORBIDDEN);
     }
 
     @Operation(summary = "Company Get One By ID")
     @GetMapping("/{companyId}")
     public ApiResponse<?> getCompanyById(
+            @RequestHeader(name = "X-USER-ROLE", required = false) String userRole,
             @RequestHeader(name = "X-USER-ID", required = false) String userId,
             @PathVariable(name = "companyId") Long companyId){
-        return ApiResponse.success(companyService.getCompany(companyId));
+        if("SHIPPER".equals(userRole))
+            return ApiResponse.error(ErrorType.FORBIDDEN);
+        else
+            return ApiResponse.success(companyService.getCompany(companyId));
     }
 
     @Operation(summary = "Company Search")
     @GetMapping
     public ApiResponse<?> searchCompany(
+            @RequestHeader(name = "X-USER-ROLE", required = false) String userRole,
             @RequestHeader(name = "X-USER-ID", required = false) String userId,
             @RequestParam(defaultValue = "1", name = "page") int page,
             @RequestParam(defaultValue = "10", name = "size") int size,
@@ -52,12 +62,16 @@ public class CompanyController {
             @RequestParam(required = false, name = "companyType") CompanyType companyType
             ){
         Pageable pageable = PageRequest.of(page-1, size, Sort.by(Sort.Direction.fromString(direction), sort));
-        return ApiResponse.success(companyService.searchCompany(keyword, companyType, pageable));
+        if("SHIPPER".equals(userRole))
+            return ApiResponse.error(ErrorType.FORBIDDEN);
+        else
+            return ApiResponse.success(companyService.searchCompany(keyword, companyType, pageable));
     }
 
     @Operation(summary = "Get Companies Hub Id")
     @PostMapping("/hubIds")
     public ApiResponse<?> getCompanyById(
+            @RequestHeader(name = "X-USER-ROLE", required = false) String userRole,
             @RequestHeader(name = "X-USER-ID", required = false) String userId,
             @RequestBody CompaniesInfosReqDto companiesInfosReqDto){
         return ApiResponse.success(companyService.getCompaniesHubIds(companiesInfosReqDto));
@@ -66,20 +80,28 @@ public class CompanyController {
     @Operation(summary = "Company Update")
     @PutMapping("/{companyId}")
     public ApiResponse<?> updateCompany(
+            @RequestHeader(name = "X-USER-ROLE", required = false) String userRole,
             @RequestHeader(name = "X-USER-ID", required = false) String userId,
             @PathVariable(name = "companyId") Long companyId,
             @RequestBody CompanyUpdateReqDto companyUpdateReqDto
     ){
-        return ApiResponse.success(companyService.updateCompany(companyId, companyUpdateReqDto));
+        if("SHIPPER".equals(userRole))
+            return ApiResponse.error(ErrorType.FORBIDDEN);
+        else
+            return ApiResponse.success(companyService.updateCompany(userRole, userId, companyId, companyUpdateReqDto));
     }
 
     @Operation(summary = "Company Delete")
     @DeleteMapping("/{companyId}")
     public ApiResponse<?> deleteCompany(
+            @RequestHeader(name = "X-USER-ROLE", required = false) String userRole,
             @RequestHeader(name = "X-USER-ID", required = false) String userId,
             @PathVariable(name = "companyId") Long companyId
     ){
-        return ApiResponse.success(companyService.deleteCompany(companyId, userId));
+        if("SHIPPER".equals(userRole))
+            return ApiResponse.error(ErrorType.FORBIDDEN);
+        else
+            return ApiResponse.success(companyService.deleteCompany(userRole, userId, companyId));
     }
 
 }
