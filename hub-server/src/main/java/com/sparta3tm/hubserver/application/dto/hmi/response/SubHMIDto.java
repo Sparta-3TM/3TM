@@ -1,4 +1,4 @@
-package com.sparta3tm.hubserver.application.dto.hmi;
+package com.sparta3tm.hubserver.application.dto.hmi.response;
 
 import com.sparta3tm.hubserver.domain.entity.HubMovementInfo;
 
@@ -11,6 +11,6 @@ public record SubHMIDto(Long startHub,
                         Double estimatedDistance) implements Serializable {
 
     public static SubHMIDto of(HubMovementInfo hubMovementInfo) {
-        return new SubHMIDto(hubMovementInfo.getStartHub(), hubMovementInfo.getEndHub(), hubMovementInfo.getEstimatedTime(), hubMovementInfo.getEstimatedDistance());
+        return new SubHMIDto(hubMovementInfo.getStartHub(), hubMovementInfo.getEndHub(), hubMovementInfo.getDuration(), hubMovementInfo.getDistance());
     }
 }

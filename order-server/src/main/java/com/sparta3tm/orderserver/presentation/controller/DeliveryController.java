@@ -5,8 +5,11 @@ import com.sparta3tm.orderserver.application.dto.request.delivery.DeliveryUpdate
 import com.sparta3tm.orderserver.application.dto.request.delivery.DeliveryUpdateHubDto;
 import com.sparta3tm.orderserver.application.dto.response.delivery.DeliveryResponseDto;
 import com.sparta3tm.orderserver.application.service.DeliveryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,6 +20,8 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/deliveries")
+@Tag(name = "Deliveries", description = "Delivery API")
+@Slf4j(topic = "delivery-controller")
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
@@ -24,6 +29,7 @@ public class DeliveryController {
     private final String USER_ROLE = "X-USER-ROLE";
 
 
+    @Operation(summary = "Delivery Get One By Id")
     @GetMapping("/{deliveryId}")
     public ApiResponse<?> searchDeliveryById(@PathVariable Long deliveryId,
                                              @RequestHeader(name = USER_ID, required = false) String userId,
@@ -32,6 +38,7 @@ public class DeliveryController {
         return ApiResponse.success(data);
     }
 
+    @Operation(summary = "Delivery Search")
     @GetMapping
     public ApiResponse<?> searchDeliveryList(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size,
@@ -44,7 +51,8 @@ public class DeliveryController {
         return ApiResponse.success(data);
     }
 
-    @PatchMapping("/remove_start/{deliveryId}")
+    @Operation(summary = "Delivery Update")
+    @PatchMapping("/{deliveryId}")
     public ApiResponse<?> updateDelivery(@PathVariable Long deliveryId,
                                          @RequestBody DeliveryUpdateDto deliveryUpdateDto,
                                          @RequestHeader(name = USER_ID, required = false) String userId,
@@ -53,6 +61,8 @@ public class DeliveryController {
         return ApiResponse.success(data);
     }
 
+
+    @Operation(summary = "Delivery HMI Update")
     @PatchMapping("/update_hmi/{hmiId}")
     ApiResponse<?> updateDeliveryByHmi(@PathVariable Long hmiId,
                                               @RequestBody DeliveryUpdateHubDto deliveryUpdateHubDto,
@@ -61,13 +71,5 @@ public class DeliveryController {
         deliveryService.updateDeliveryByHmi(hmiId, deliveryUpdateHubDto, userId, userRole);
         return ApiResponse.success();
     }
-
-
-    // hmi 가 변경될 때, Delivery 의 hmi 도 바껴야함
-
-    // hmi 변경 메서드 수행시 Delivery
-
-
-
 
 }

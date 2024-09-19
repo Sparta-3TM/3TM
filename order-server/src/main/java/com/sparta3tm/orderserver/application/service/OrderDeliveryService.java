@@ -27,7 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +37,6 @@ import java.util.stream.Collectors;
 public class OrderDeliveryService {
 
     private final DeliveryRepository deliveryRepository;
-    private final OrderRepository orderRepository;
     private final CompanyClient companyClient;
     private final HubClient hubClient;
     private final RoleCheck roleCheck = new RoleCheck();
@@ -59,9 +60,14 @@ public class OrderDeliveryService {
 
         List<Long> supplyList = companyDto.getSupplyHubIds();
         List<Long> demandList = companyDto.getDemandHubIds();
-        List<Long> commonList = supplyList.stream().filter(demandList::contains).toList();
-        companyDto.getStartHubId();
-        ResponseHMIDto data = (ResponseHMIDto) hubClient.createHmi(new RequestHMIDto(supplyList.getFirst(), demandList.getFirst(), LocalTime.of(3, 3, 3), 333D, commonList), userId, userRole).getData();
+        Set<Long> combinedSet = new LinkedHashSet<>(supplyList);
+        combinedSet.addAll(demandList);
+
+        List<Long> commonList = new ArrayList<>(combinedSet);
+        commonList.remove(supplyList.get(0));
+        commonList.remove(demandList.get(0));
+
+        ResponseHMIDto data = (ResponseHMIDto) hubClient.createHmi(new RequestHMIDto(supplyList.get(0), demandList.get(0), commonList), userId, userRole).getData();
 
         companyClient.updateProduct(userId, new ProductsUpdateQuantitiesReqDto(productId, productAmount));
         Long hubMovementId = data.id();
@@ -81,22 +87,24 @@ public class OrderDeliveryService {
 
     @Transactional
     public OrderResponseDto updateOrder(Long orderId, Long deliveryId, UpdateAmountOrderDto updateAmountOrderDto, String userId, String userRole) {
-        // Master 일 때: deliveryId 와 orderId 를 통해 delivery 를 찾고 주문량 수정!
-        // Manager 일 때: userId 를 통해 Auth Server 로 요청해 Manager 의 담당 Hub 를 찾아 findOrder 의 SupplyHub 와 manager 관리 허브Id 가 동일하면 수행, 아니면 X
         Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
         DeliveryRoute route = delivery.getDeliveryRoute();
-        Long hmiId = route.getHmiId();
-        if (!roleCheck.CHECK_MASTER(userRole)) {
-            if (roleCheck.CHECK_COMPANY(userRole) || roleCheck.CHECK_SHIPPER(userRole))
-                throw new CoreApiException(ErrorType.BAD_REQUEST);
 
-            else {
-                List<ResponseHubManagerDto> managerList = (List<ResponseHubManagerDto>) hubClient.searchHmiManager(hmiId, userId, userRole).getData();
-                for (ResponseHubManagerDto data : managerList) {
-                    if (!userId.equals(data.managerId())) throw new CoreApiException(ErrorType.BAD_REQUEST);
+        if (roleCheck.CHECK_SHIPPER(userRole)) {
+            if (!delivery.getShipperId().equals(userId)) {
+                throw new CoreApiException(ErrorType.BAD_REQUEST);
+            }
+        } else if (roleCheck.CHECK_MANAGER(userRole)) {
+            List<ResponseHubManagerDto> dataList = (List<ResponseHubManagerDto>) hubClient.searchHmiManager(route.getHmiId(), userId, userRole).getData();
+            boolean isMatched = false;
+            for (ResponseHubManagerDto data : dataList) {
+                if (data.managerId().equals(userId)) {
+                    isMatched = true;
+                    break;
                 }
             }
-        }
+            if (!isMatched) throw new CoreApiException(ErrorType.BAD_REQUEST);
+        } else if (roleCheck.CHECK_COMPANY(userRole)) throw new CoreApiException(ErrorType.BAD_REQUEST);
 
         Order findOrder = delivery.getOrderList().stream().filter(order -> order.getId().equals(orderId))
                 .findAny().orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
@@ -116,18 +124,22 @@ public class OrderDeliveryService {
     @Transactional
     public void deleteOrder(Long orderId, Long deliveryId, String userId, String userRole) {
         Delivery delivery = deliveryRepository.findByIdAndIsDeleteFalse(deliveryId).orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
-        DeliveryRoute deliveryRoute = delivery.getDeliveryRoute();
+        DeliveryRoute route = delivery.getDeliveryRoute();
 
-        if (!roleCheck.CHECK_MASTER(userRole)) {
-            if (roleCheck.CHECK_COMPANY(userRole) || roleCheck.CHECK_SHIPPER(userRole))
-                throw new CoreApiException(ErrorType.BAD_REQUEST);
-            else {
-                List<ResponseHubManagerDto> managerList = (List<ResponseHubManagerDto>) hubClient.searchHmiManager(deliveryRoute.getHmiId(), userId, userRole).getData();
-                for (ResponseHubManagerDto data : managerList) {
-                    if (!userId.equals(data.managerId())) throw new CoreApiException(ErrorType.BAD_REQUEST);
+        if (roleCheck.CHECK_COMPANY(userRole) || roleCheck.CHECK_SHIPPER(userRole)) {
+            throw new CoreApiException(ErrorType.BAD_REQUEST);
+        } else if (roleCheck.CHECK_MANAGER(userRole)) {
+            List<ResponseHubManagerDto> dataList = (List<ResponseHubManagerDto>) hubClient.searchHmiManager(route.getHmiId(), userId, userRole).getData();
+            boolean isMatched = false;
+            for (ResponseHubManagerDto data : dataList) {
+                if (data.managerId().equals(userId)) {
+                    isMatched = true;
+                    break;
                 }
             }
+            if (!isMatched) throw new CoreApiException(ErrorType.BAD_REQUEST);
         }
+
         Order findOrder = delivery.getOrderList().stream().filter(order -> order.getId().equals(orderId)).findAny().orElseThrow(() -> new CoreApiException(ErrorType.NOT_FOUND_ERROR));
         delivery.getOrderList().remove(findOrder);
         findOrder.softDelete(userId);

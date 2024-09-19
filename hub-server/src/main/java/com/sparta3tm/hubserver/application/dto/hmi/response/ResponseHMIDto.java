@@ -1,4 +1,4 @@
-package com.sparta3tm.hubserver.application.dto.hmi;
+package com.sparta3tm.hubserver.application.dto.hmi.response;
 
 import com.sparta3tm.hubserver.domain.entity.HubMovementInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public record ResponseHMIDto(Long id,
 
     public static ResponseHMIDto of(HubMovementInfo hubMovementInfo) {
         List<SubHMIDto> list = hubMovementInfo.getSubMovementInfo().stream().map(SubHMIDto::of).toList();
-        return new ResponseHMIDto(hubMovementInfo.getId(), hubMovementInfo.getStartHub(), hubMovementInfo.getEndHub(), hubMovementInfo.getAddress(), hubMovementInfo.getEstimatedTime(), hubMovementInfo.getEstimatedDistance(), list);
+        return new ResponseHMIDto(hubMovementInfo.getId(), hubMovementInfo.getStartHub(), hubMovementInfo.getEndHub(), hubMovementInfo.getAddress(), hubMovementInfo.getDuration(), hubMovementInfo.getDistance(), list);
     }
 
 

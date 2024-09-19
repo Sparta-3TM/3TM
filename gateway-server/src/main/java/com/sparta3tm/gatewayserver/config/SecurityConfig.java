@@ -2,6 +2,7 @@ package com.sparta3tm.gatewayserver.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,6 +28,9 @@ public class SecurityConfig {
                         .anyExchange().permitAll()  // 나머지 경로는 인증 필요
                 )
                 .build();
+
+
     }
+
 
 }

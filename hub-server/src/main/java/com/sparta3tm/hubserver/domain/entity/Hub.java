@@ -1,7 +1,7 @@
 package com.sparta3tm.hubserver.domain.entity;
 
 import com.sparta3tm.common.BaseEntity;
-import com.sparta3tm.hubserver.application.dto.hub.RequestHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.request.RequestHubDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

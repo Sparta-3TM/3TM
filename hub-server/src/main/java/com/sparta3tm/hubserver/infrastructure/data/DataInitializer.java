@@ -1,6 +1,5 @@
 package com.sparta3tm.hubserver.infrastructure.data;
 
-import com.sparta3tm.hubserver.application.dto.hub.RequestHubDto;
 import com.sparta3tm.hubserver.domain.entity.Hub;
 import com.sparta3tm.hubserver.domain.entity.HubMovementInfo;
 import com.sparta3tm.hubserver.domain.repository.HubRepository;

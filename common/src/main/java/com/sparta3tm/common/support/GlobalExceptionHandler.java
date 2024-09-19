@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class GlobalExceptionHandler {
+public class  GlobalExceptionHandler {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 

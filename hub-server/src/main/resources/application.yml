@@ -11,7 +11,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
   data:
     redis:
       port: 6379
@@ -45,3 +45,9 @@ management:
   tracing:
     sampling:
       probability: 1.0
+
+naver:
+  map:
+    client_id: ${naver_map_client_id}
+    client_secret: ${naver_map_client_secret}
+

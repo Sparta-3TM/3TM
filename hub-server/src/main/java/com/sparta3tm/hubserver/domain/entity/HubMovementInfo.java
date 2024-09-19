@@ -4,8 +4,6 @@ import com.sparta3tm.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Time;
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@ToString
 public class HubMovementInfo extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +24,8 @@ public class HubMovementInfo extends BaseEntity {
 
     private String address;
 
-    private LocalTime estimatedTime;
-    private Double estimatedDistance;
+    private LocalTime duration;
+    private Double distance;
 
     @OneToMany(mappedBy = "parentMovementInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("index ASC")
@@ -38,11 +37,11 @@ public class HubMovementInfo extends BaseEntity {
     @Setter
     private HubMovementInfo parentMovementInfo;
 
-    public HubMovementInfo(Long startHub, Long endHub, LocalTime estimatedTime, Double estimatedDistance) {
+    public HubMovementInfo(Long startHub, Long endHub, LocalTime duration, Double distance) {
         this.startHub = startHub;
         this.endHub = endHub;
-        this.estimatedTime = estimatedTime;
-        this.estimatedDistance = estimatedDistance;
+        this.duration = duration;
+        this.distance = distance;
     }
 
     public void updateStartHub(Long startHub) {
@@ -66,9 +65,16 @@ public class HubMovementInfo extends BaseEntity {
         this.index = index;
     }
 
-    public void addAddress(String address) {
+    public void updateAddress(String address) {
         this.address = address;
     }
 
 
+    public void updateDuration(LocalTime duration) {
+        this.duration = duration;
+    }
+
+    public void updateDistance(Double distance) {
+        this.distance = distance;
+    }
 }
