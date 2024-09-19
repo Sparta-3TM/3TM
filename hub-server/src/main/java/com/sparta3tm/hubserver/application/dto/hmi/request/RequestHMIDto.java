@@ -1,4 +1,4 @@
-package com.sparta3tm.hubserver.application.dto.hmi;
+package com.sparta3tm.hubserver.application.dto.hmi.request;
 
 import java.time.LocalTime;
 import java.util.List;

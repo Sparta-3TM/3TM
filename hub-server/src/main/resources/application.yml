@@ -48,5 +48,6 @@ management:
 
 naver:
   map:
-    client_id: 887vwee4r8
-    client_secret: BW98ZrMi4YQAxPJENiKDLQmQtwnrgfe7MNnCHiy9
+    client_id: ${naver_map_client_id}
+    client_secret: ${naver_map_client_secret}
+

@@ -64,10 +64,10 @@ public class OrderDeliveryService {
         combinedSet.addAll(demandList);
 
         List<Long> commonList = new ArrayList<>(combinedSet);
-        commonList.remove(supplyList.getFirst());
-        commonList.remove(demandList.getFirst());
+        commonList.remove(supplyList.get(0));
+        commonList.remove(demandList.get(0));
 
-        ResponseHMIDto data = (ResponseHMIDto) hubClient.createHmi(new RequestHMIDto(supplyList.getFirst(), demandList.getFirst(), commonList), userId, userRole).getData();
+        ResponseHMIDto data = (ResponseHMIDto) hubClient.createHmi(new RequestHMIDto(supplyList.get(0), demandList.get(0), commonList), userId, userRole).getData();
 
         companyClient.updateProduct(userId, new ProductsUpdateQuantitiesReqDto(productId, productAmount));
         Long hubMovementId = data.id();

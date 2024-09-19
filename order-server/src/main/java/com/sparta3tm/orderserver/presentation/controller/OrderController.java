@@ -6,7 +6,10 @@ import com.sparta3tm.orderserver.application.dto.request.order.UpdateAmountOrder
 import com.sparta3tm.orderserver.application.dto.response.order.OrderResponseDto;
 import com.sparta3tm.orderserver.application.service.OrderDeliveryService;
 import com.sparta3tm.orderserver.application.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,6 +20,8 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/orders")
+@Tag(name = "Orders", description = "Order API")
+@Slf4j(topic = "order-controller")
 public class OrderController {
 
     private final OrderDeliveryService orderDeliveryService;
@@ -24,6 +29,7 @@ public class OrderController {
     private final String USER_ID = "X-USER-ID";
     private final String USER_ROLE = "X-USER-ROLE";
 
+    @Operation(summary = "Order Create")
     @PostMapping
     public ApiResponse<?> createOrder(@RequestBody OrderListRequestDto orderRequestDto,
                                       @RequestHeader(USER_ID) String userId,
@@ -32,6 +38,7 @@ public class OrderController {
         return ApiResponse.success();
     }
 
+    @Operation(summary = "Order Get One By Id")
     @GetMapping("/{orderId}")
     public ApiResponse<?> searchOrderById(@PathVariable Long orderId,
                                           @RequestHeader(USER_ID) String userId,
@@ -40,6 +47,7 @@ public class OrderController {
         return ApiResponse.success(data);
     }
 
+    @Operation(summary = "Order Search")
     @GetMapping
     public ApiResponse<?> searchOrderList(@RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "10") int size,
@@ -52,6 +60,7 @@ public class OrderController {
         return ApiResponse.success(data);
     }
 
+    @Operation(summary = "Order Update")
     @PutMapping("/{deliveryId}/{orderId}")
     public ApiResponse<?> updateOrder(@PathVariable Long orderId,
                                       @PathVariable Long deliveryId,
@@ -62,6 +71,7 @@ public class OrderController {
         return ApiResponse.success(data);
     }
 
+    @Operation(summary = "Order Delete")
     @DeleteMapping("/{deliveryId}/{orderId}")
     public ApiResponse<?> deleteOrder(@PathVariable Long orderId,
                                       @PathVariable Long deliveryId,

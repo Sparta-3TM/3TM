@@ -1,4 +1,4 @@
-package com.sparta3tm.hubserver.application.dto.hub;
+package com.sparta3tm.hubserver.application.dto.hub.response;
 
 public record ResponseHubManagerDto(String managerId) {
 

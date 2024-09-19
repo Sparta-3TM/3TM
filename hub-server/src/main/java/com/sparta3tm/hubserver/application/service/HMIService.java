@@ -3,15 +3,19 @@ package com.sparta3tm.hubserver.application.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta3tm.common.support.error.CoreApiException;
 import com.sparta3tm.common.support.error.ErrorType;
-import com.sparta3tm.hubserver.application.dto.hmi.*;
-import com.sparta3tm.hubserver.application.dto.hub.ResponseHubDto;
-import com.sparta3tm.hubserver.application.dto.hub.ResponseHubManagerDto;
+import com.sparta3tm.hubserver.application.dto.hmi.request.AddUpdateHMIDto;
+import com.sparta3tm.hubserver.application.dto.hmi.request.RemoveUpdateHMIDto;
+import com.sparta3tm.hubserver.application.dto.hmi.request.RequestHMIDto;
+import com.sparta3tm.hubserver.application.dto.hmi.response.ResponseHMIDto;
+import com.sparta3tm.hubserver.application.dto.hub.response.ResponseHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.response.ResponseHubManagerDto;
 import com.sparta3tm.hubserver.domain.entity.Hub;
 import com.sparta3tm.hubserver.domain.entity.HubMovementInfo;
 import com.sparta3tm.hubserver.domain.repository.HMIRepository;
 import com.sparta3tm.hubserver.infrastructure.client.OrderClient;
 import com.sparta3tm.hubserver.infrastructure.client.dto.DeliveryUpdateHubDto;
-import com.sparta3tm.hubserver.infrastructure.naver.NaverService;
+import com.sparta3tm.hubserver.infrastructure.naver.dto.StopoverDto;
+import com.sparta3tm.hubserver.infrastructure.naver.service.NaverService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -81,10 +85,7 @@ public class HMIService {
         ResponseHubDto addHub = hubService.searchHubById(addUpdateHMIDto.addHubId());
         list.add(addUpdateHMIDto.position(), addHub);
 
-        System.out.println("list = " + list);
-
         String[] strings = requestNaverApi(list);
-        System.out.println("strings = " + Arrays.toString(strings));
         try {
             List<StopoverDto> stopoverDtoList = naverService.naverApi(strings, list.size() - 2);
             ResponseHMIDto response = ResponseHMIDto.of(updateConnectionAddHmi(hmi, stopoverDtoList, addUpdateHMIDto));
@@ -96,7 +97,6 @@ public class HMIService {
         }
     }
 
-    // 여기서부터 시작!
     @Transactional
     @CachePut(cacheNames = "hmi_cache", key = "args[0]")
     public ResponseHMIDto removeUpdateHmi(Long hmiId, RemoveUpdateHMIDto removeUpdateHMIDto, String userId, String userRole) {
@@ -160,12 +160,11 @@ public class HMIService {
 
         for (int i = 1; i < list.size(); i++) {
             HubMovementInfo subHmi = new HubMovementInfo(list.get(i - 1), list.get(i), convertDoubleToLocalTime(stopoverInfoList.get(i).duration()), stopoverInfoList.get(i).distance());
-            System.out.println("subHmi = " + subHmi);
             subHmi.addIndex(index++);
             hmi.addSubMovement(subHmi);
         }
         HubMovementInfo subHmi = new HubMovementInfo(list.getLast(), requestHMIDto.endHub(), convertDoubleToLocalTime(stopoverInfoList.get(stopoverInfoList.size() - 2).duration()), stopoverInfoList.get(stopoverInfoList.size() - 2).distance());
-        System.out.println("subHmi2 = " + subHmi);
+
 
         subHmi.addIndex(index);
         hmi.addSubMovement(subHmi);
@@ -267,18 +266,6 @@ public class HMIService {
             hmi.addSubMovement(addHub);
         } else throw new CoreApiException(ErrorType.BAD_REQUEST);
 
-        for (HubMovementInfo info : hmi.getSubMovementInfo()) {
-            System.out.println("info startHub: " + info.getStartHub());
-            System.out.println("info endHub: " + info.getEndHub());
-            System.out.println("info distance: " + info.getDistance());
-            System.out.println("info duration: " + info.getDuration());
-            System.out.println();
-        }
-
-        System.out.println("parent hmi startHub: " + hmi.getStartHub());
-        System.out.println("parent hmi endHub: " + hmi.getEndHub());
-        System.out.println("parent hmi distance: " + hmi.getDistance());
-        System.out.println("parent hmi duration: " + hmi.getDuration());
         return hmiRepository.save(hmi);
     }
 
@@ -366,17 +353,6 @@ public class HMIService {
                 }
             }
         }
-        for (HubMovementInfo info : hmi.getSubMovementInfo()) {
-            System.out.println("info startHub: " + info.getStartHub());
-            System.out.println("info endHub: " + info.getEndHub());
-            System.out.println("info distance: " + info.getDistance());
-            System.out.println("info duration: " + info.getDuration());
-            System.out.println();
-        }
-        System.out.println("parent hmi startHub: " + hmi.getStartHub());
-        System.out.println("parent hmi endHub: " + hmi.getEndHub());
-        System.out.println("parent hmi distance: " + hmi.getDistance());
-        System.out.println("parent hmi duration: " + hmi.getDuration());
         return ResponseHMIDto.of(hmiRepository.save(hmi));
     }
 
@@ -398,8 +374,6 @@ public class HMIService {
         if (time == null) return null;
         int hours = (int) Math.floor(time);
         int minutes = (int) Math.round((time - hours) * 60);
-        System.out.println("hours = " + hours);
-        System.out.println("minutes = " + minutes);
 
         if (minutes == 60) minutes = 59;
         return LocalTime.of(hours, minutes);

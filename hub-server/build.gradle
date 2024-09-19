@@ -14,7 +14,16 @@ bootJar {
     mainClass.set('com.sparta3tm.hubserver.HubServerApplication')
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 dependencies {
+
+    // Swagger
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
 
     // lombok
     compileOnly 'org.projectlombok:lombok'
@@ -72,3 +81,5 @@ openapi3 {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+tasks.register("prepareKotlinBuildScriptModel"){}

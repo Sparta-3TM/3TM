@@ -1,4 +1,4 @@
-package com.sparta3tm.hubserver.application.dto.hmi;
+package com.sparta3tm.hubserver.application.dto.hmi.response;
 
 import com.sparta3tm.hubserver.domain.entity.HubMovementInfo;
 

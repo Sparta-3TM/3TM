@@ -1,8 +1,8 @@
 package com.sparta3tm.hubserver.hub.controller;
 
-import com.sparta3tm.hubserver.application.dto.hub.RequestHubDto;
-import com.sparta3tm.hubserver.application.dto.hub.ResponseHubDto;
-import com.sparta3tm.hubserver.application.dto.hub.ResponsePageHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.request.RequestHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.response.ResponseHubDto;
+import com.sparta3tm.hubserver.application.dto.hub.response.ResponsePageHubDto;
 import com.sparta3tm.hubserver.application.service.HubService;
 import com.sparta3tm.hubserver.hub.RestDocsTest;
 import com.sparta3tm.hubserver.presentation.controller.HubController;

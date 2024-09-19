@@ -1,4 +1,4 @@
-package com.sparta3tm.hubserver.infrastructure.naver;
+package com.sparta3tm.hubserver.infrastructure.naver.dto;
 
 import lombok.Data;
 
