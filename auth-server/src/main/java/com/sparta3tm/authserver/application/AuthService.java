@@ -73,4 +73,33 @@ public class AuthService {
         // JWT 토큰 생성
         return token;
     }
+
+    public String resetPassword(String userId, String resetCode, String newPassword) {
+        String cacheKey = "Reset::" + userId;
+        String cachedResetCode = (String) redisTemplate.opsForValue().get(cacheKey);
+
+        if (cachedResetCode == null) {
+            throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
+        }
+
+        if (!cachedResetCode.equals(resetCode)) {
+            throw new CoreApiException(ErrorType.INVALID);
+        }
+
+        Optional<User> userOptional = userRepository.findByUserId(userId);
+        if (userOptional.isEmpty()) {
+            throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
+        }
+
+        User user = userOptional.get();
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+
+        userRepository.save(user);
+
+        redisTemplate.delete(cacheKey);
+
+        return newPassword;
+    }
 }

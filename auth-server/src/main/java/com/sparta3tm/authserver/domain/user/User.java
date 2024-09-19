@@ -3,13 +3,11 @@ package com.sparta3tm.authserver.domain.user;
 import com.sparta3tm.authserver.domain.DM.DeliveryManager;
 import com.sparta3tm.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

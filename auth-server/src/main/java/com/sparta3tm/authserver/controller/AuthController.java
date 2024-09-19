@@ -2,6 +2,7 @@ package com.sparta3tm.authserver.controller;
 
 import com.sparta3tm.authserver.application.AuthService;
 import com.sparta3tm.authserver.application.dtos.auth.AuthResponseDto;
+import com.sparta3tm.authserver.application.dtos.auth.ResetPWRequestDto;
 import com.sparta3tm.authserver.application.dtos.user.SignInReqDto;
 import com.sparta3tm.authserver.application.dtos.user.SignUpReqDto;
 import com.sparta3tm.authserver.config.JwtTokenProvider;
@@ -34,6 +35,17 @@ public class AuthController {
     public ApiResponse<?> login(@RequestBody SignInReqDto signInReqDto) {
         String token = authService.login(signInReqDto.getUserId(), signInReqDto.getPassword());
         return ApiResponse.success(token);  // JWT 토큰 반환
+    }
+
+    @PostMapping("/resetPassword")
+    public ApiResponse<?> resetPassword(@RequestBody ResetPWRequestDto resetPWRequestDto) {
+
+        try {
+            String response = authService.resetPassword(resetPWRequestDto.getUserId(),resetPWRequestDto.getResetCode(),resetPWRequestDto.getNewPassword());
+            return ApiResponse.success(response);
+        } catch (IllegalArgumentException e) {
+            return ApiResponse.error(ErrorType.INVALID);
+        }
     }
 
     @PostMapping("/validate-token")

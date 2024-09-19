@@ -31,7 +31,7 @@ public class JwtFilter implements GlobalFilter {
         String requestPath = exchange.getRequest().getURI().getPath();
 
         // 회원가입 및 로그인 경로는 필터를 거치지 않도록 예외 처리
-        if (requestPath.equals("/api/users/signUp") || requestPath.equals("/api/users/login")) {
+        if (requestPath.equals("/api/users/signUp") || requestPath.equals("/api/users/login") || requestPath.equals("/api/users/resetPassword")) {
             return chain.filter(exchange);
         }
 
