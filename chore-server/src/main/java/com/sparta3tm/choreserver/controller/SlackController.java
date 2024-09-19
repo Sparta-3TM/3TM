@@ -24,6 +24,12 @@ public class SlackController {
         return ApiResponse.success(slackService.sendSlackMessage(slackMessageReqDto));
     }
 
+    @Operation(summary = "비밀번호 초기화 Slack Message 수신 API")
+    @GetMapping("/resetPassword")
+    public ApiResponse<?> sendResetCode(@RequestHeader(value = "X-USER-ID") String userId){
+        return ApiResponse.success(slackService.sendResetCode(userId));
+    }
+
 //    @Operation(summary = "날씨 정보 API")
 //    @GetMapping("/weather/{date}")
 //    public ApiResponse<?> getWeatherInfo(@PathVariable(name = "date") String date){

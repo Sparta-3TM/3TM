@@ -13,19 +13,39 @@ spring:
         - id: auth-server
           uri: lb://auth-server
           predicates:
-            - Path=/api/auth-server/**
+            - Path=/api/users/**, /api/delivery_managers/**
         - id: company-server
           uri: lb://company-server
           predicates:
-            - Path=/api/company-server/**
-        - id: order-server
-          uri: lb://order-server
-          predicates:
-            - Path=/api/order-server/**
+            - Path=/api/companies/**, /api/products/**
         - id: hub-server
           uri: lb://hub-server
           predicates:
-              - Path=/api/hub-server/**
+            - Path=/api/hubs/**, /api/hub_movement_infos/**
+        - id: order-server
+          uri: lb://order-server
+          predicates:
+            - Path=/api/orders/**, /api/deliveries/**
+        - id: chore-server
+          uri: lb://chore-server
+          predicates:
+            - Path=/api/slack/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:19092"
+              - "http://localhost:19093"
+              - "http://localhost:19094"
+              - "http://localhost:19095"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
       discovery:
         locator:
           enabled: true
@@ -38,5 +58,3 @@ eureka:
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
-
-

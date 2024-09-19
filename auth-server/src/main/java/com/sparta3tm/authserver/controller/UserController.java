@@ -1,6 +1,7 @@
 package com.sparta3tm.authserver.controller;
 
 import com.sparta3tm.authserver.application.UserService;
+import com.sparta3tm.authserver.application.dtos.DM.DMResDto;
 import com.sparta3tm.authserver.application.dtos.user.UserUpdateReqDto;
 import com.sparta3tm.authserver.domain.user.User;
 import com.sparta3tm.authserver.domain.user.UserRole;
@@ -23,6 +24,12 @@ public class UserController {
     public ApiResponse<?> getUser(
             @PathVariable Long userId) {
         return ApiResponse.success(userService.getUser(userId));
+    }
+
+    @GetMapping("/userId")
+    public ApiResponse<?> getUserByUserId(
+            @RequestHeader(name = "X-USER-ID", required = false) String userId) {
+        return ApiResponse.success(userService.getUserByUserId(userId));
     }
 
     @GetMapping
