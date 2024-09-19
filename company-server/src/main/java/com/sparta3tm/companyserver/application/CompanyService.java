@@ -95,7 +95,7 @@ public class CompanyService {
     }
 
     @Transactional
-    public CompanyResDto updateCompany(Long id, CompanyUpdateReqDto updateReqDto){
+    public CompanyResDto updateCompany(String userRole, String userId, Long id, CompanyUpdateReqDto updateReqDto){
         try{
             hubClient.searchHubById(updateReqDto.getHubId());
         }catch(FeignException e){
@@ -108,6 +108,11 @@ public class CompanyService {
             throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
         });
 
+        if("COMPANY".equals(userRole) && !company.getCreatedBy().equals(userId)){
+            log.error("본인의 업체 외에는 관리할 수 없습니다.");
+            throw new CoreApiException(ErrorType.FORBIDDEN);
+        }
+
         try{
             company.updateCompany(updateReqDto.getHubId(), updateReqDto.getName(), updateReqDto.getAddress(), updateReqDto.getCompanyType());
         }catch (Exception e){
@@ -119,11 +124,16 @@ public class CompanyService {
     }
 
     @Transactional
-    public String deleteCompany(Long id, String userId){
+    public String deleteCompany(String userRole, String userId, Long id){
         Company company = companyRepository.findById(id).orElseThrow(()->{
             log.error("존재하지 않는 Company ID 입니다.");
             throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
         });
+
+        if("COMPANY".equals(userRole) && !company.getCreatedBy().equals(userId)){
+            log.error("본인의 업체 외에는 관리할 수 없습니다.");
+            throw new CoreApiException(ErrorType.FORBIDDEN);
+        }
 
         try{
             for(Product product : company.getProducts()){
