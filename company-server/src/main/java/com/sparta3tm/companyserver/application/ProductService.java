@@ -76,7 +76,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResDto updateProduct(Long productId, ProductUpdateReqDto productUpdateReqDto) {
+    public ProductResDto updateProduct(String userRole, String userId, Long productId, ProductUpdateReqDto productUpdateReqDto) {
         try{
             hubClient.searchHubById(productUpdateReqDto.getHubId());
         }catch(FeignException e){
@@ -96,6 +96,11 @@ public class ProductService {
             log.error("존재하지 않는 Product ID 입니다.");
             throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
         });
+
+        if("COMPANY".equals(userRole) && !product.getCreatedBy().equals(userId)){
+            log.error("본인의 상품 외에는 관리할 수 없습니다.");
+            throw new CoreApiException(ErrorType.FORBIDDEN);
+        }
 
         try{
             product.updateProductInfo(company, productUpdateReqDto.getHubId(),
@@ -132,11 +137,16 @@ public class ProductService {
     }
 
     @Transactional
-    public String deleteProduct(Long productId, String userId) {
+    public String deleteProduct(String userRole, String userId, Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(()->{
             log.error("존재하지 않는 Product ID 입니다.");
             throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
         });
+
+        if("COMPANY".equals(userRole) && !product.getCreatedBy().equals(userId)){
+            log.error("본인의 상품 외에는 관리할 수 없습니다.");
+            throw new CoreApiException(ErrorType.FORBIDDEN);
+        }
 
         try{
             product.softDelete(userId);
