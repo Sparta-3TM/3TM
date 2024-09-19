@@ -76,12 +76,10 @@ public class AuthService {
 
     public String resetPassword(String userId, String resetCode, String newPassword) {
         String cacheKey = "Reset::" + userId;
-        String cachedResetCode = (String) redisTemplate.opsForValue().get(cacheKey);
-
+        String cachedResetCode = ((String) redisTemplate.opsForValue().get(cacheKey)).replaceAll("\"", "");
         if (cachedResetCode == null) {
             throw new CoreApiException(ErrorType.NOT_FOUND_ERROR);
         }
-
         if (!cachedResetCode.equals(resetCode)) {
             throw new CoreApiException(ErrorType.INVALID);
         }
